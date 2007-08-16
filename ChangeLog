@@ -1,5 +1,8 @@
 2007-08-16  Diab Jerius  <djerius@cfa.harvard.edu>
 
+	Tag: 0.02
+	* work around lack of weak references in older perls
+
 	Tag: 0.01
 	* initial release
 

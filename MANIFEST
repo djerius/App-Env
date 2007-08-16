@@ -24,3 +24,4 @@ t/use1.t
 t/use2.t
 t/use3.t
 
+META.yml                                 Module meta-data (added by MakeMaker)

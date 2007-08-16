@@ -1,5 +1,8 @@
 Revision history for Perl extension App::Env.
 
+0.02  Thu Aug 16 17:10:27 EDT 2007
+	- work around lack of weak references in older perls
+
 0.01  Thu Jul 26 17:39:40 2007
 	- original version; created by h2xs 1.23 with options
 		-A -X -n App::Env
