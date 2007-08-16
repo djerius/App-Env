@@ -511,7 +511,7 @@ sub exec
 package App::Env::_app;
 
 use Carp;
-use Scalar::Util qw( weaken refaddr );
+use Scalar::Util qw( refaddr );
 use Module::Load::Conditional qw( check_install can_load );
 
 use strict;
@@ -552,7 +552,14 @@ sub new
     else
     {
 	$self = bless \%opt, $class;
-	weaken( $self->{ref} );
+
+	# weak references don't exist under older versions of perl.
+	# on those systems, ignore the error returned by Scalar::Util.
+	# the only repercussion is that there will be a small amount
+	# of memory that won't be freed until this environment is
+	# uncached.
+
+	eval { Scalar::Util::weaken( $self->{ref} ) };
 
 	$self->load
 	  unless $self->{NoLoad} && !$self->{opt}{Force};
@@ -604,7 +611,9 @@ sub uncache {
     my $cacheid = $self->{cacheid};
 
     delete $App::Env::EnvCache{$cacheid}
-      if exists $App::Env::EnvCache{$cacheid} && refaddr($App::Env::EnvCache{$cacheid}{ref}) == refaddr($self->{ref});
+      if exists $App::Env::EnvCache{$cacheid} 
+	&& refaddr($App::Env::EnvCache{$cacheid}{ref}) 
+	    == refaddr($self->{ref});
 }
 
 
