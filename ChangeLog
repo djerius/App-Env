@@ -1,3 +1,27 @@
+2007-08-17  Diab Jerius  <djerius@cfa.harvard.edu>
+
+	Tag: 0.03
+	
+2007-08-17 12:26 -0400  djerius  <djerius@cfa.harvard.edu>  (7a3552e41221 [tip])
+
+	* Makefile.PL, lib/App/Env.pm:
+	don't use Module::Load::Conditional. clean up envs invocation.
+
+	Originally Module::Load::Conditional was used to determine whether a
+	module existed separately from whether there was an error during its
+	compilation (Module::Load doesn't distinguish this case). However
+	Module::Load::Conditional's dependency chain is larger than I'd
+	like.
+
+	Instead, Module::Load was emulated using eval "require $module".
+	Same results, perhaps less efficient because it requires a run time
+	compilation.
+
+	 calling the envs function in the application environment module is
+	no longer done with eval (once I figured out how to get the symbolic
+	reference to work).
+
+
 2007-08-16  Diab Jerius  <djerius@cfa.harvard.edu>
 
 	Tag: 0.02
