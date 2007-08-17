@@ -512,7 +512,6 @@ package App::Env::_app;
 
 use Carp;
 use Scalar::Util qw( refaddr );
-use Module::Load::Conditional qw( check_install can_load );
 
 use strict;
 use warnings;
@@ -580,15 +579,18 @@ sub load {
 
 
     my $module = $self->{module};
-    croak( "application environment module ($module) for $self->{app} does not exist\n" )
-      unless check_install( module => $module );
-
-    croak( "error loading $module\n" )
-      unless can_load( modules => { $module => undef } );
-
-    my $envs = eval $module.'::envs(\%env_opt)';
-    croak( "error in ${module}::envs: $@\n" )
+    eval "require $module";
+    croak( "error loading application environment module",
+	   " ($module) for $self->{app}:\n", $@ )
       if $@;
+
+    my $envs;
+    {
+	no strict 'refs';
+	$envs = eval { &{"${module}::envs"}( \%env_opt ) };
+	croak( "error in ${module}::envs: $@\n" )
+	  if $@;
+    }
 
     # make copy of environment
     $self->{ENV} = {%{$envs}};
