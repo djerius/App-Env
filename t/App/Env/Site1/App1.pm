@@ -12,7 +12,7 @@ sub envs
 
     $cnt++;
 
-    return { Site1_App1 => $cnt, %{$opt->{AppOpts}} };
+    return { Site1_App1 => $cnt, %{$opt} };
 }
 
 sub reset

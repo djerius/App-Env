@@ -44,21 +44,9 @@ They should define the following functions:
 
   $hashref = envs( \%opts );
 
-C<$hashref> is a hash containing environmental variables and
-their values.  C<%opts> has the following keys:
-
-=over
-
-=item Version
-
-The application version.  The meaning of this is application specific.
-A value of B<undef> means that no version was specified.
-
-=item AppOpts
-
-This is a hashref containing application specific options.
-
-=back
+C<$hashref> is a hash containing environmental variables and their
+values. C<%opts> will contain the options passed to
+B<App::Env::import> via the B<AppOpts> option.
 
 =back
 

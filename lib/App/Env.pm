@@ -572,11 +572,8 @@ sub new
 sub load {
     my ( $self ) = @_;
 
+    # only load if we haven't before
     return $self->{ENV} if exists $self->{ENV};
-
-    my %env_opt = %{$self->{opt}};
-    delete @env_opt{ keys %SharedOptions };
-
 
     my $module = $self->{module};
     eval "require $module";
@@ -587,7 +584,7 @@ sub load {
     my $envs;
     {
 	no strict 'refs';
-	$envs = eval { &{"${module}::envs"}( \%env_opt ) };
+	$envs = eval { &{"${module}::envs"}( $self->{opt}{AppOpts} ) };
 	croak( "error in ${module}::envs: $@\n" )
 	  if $@;
     }
@@ -798,10 +795,11 @@ are noted.
 
 =item AppOpts I<hashref>
 
-This is a hash of options to pass to the C<App::Env::E<lt>applicationE<gt>> module.
-Their meanings are application specific.  As noted in L</Caching> the caching
-mechanism is B<not> keyed off of this information -- use B<CacheID> to ensure
-a unique cache key.
+This is a hash of options to pass to the
+C<App::Env::E<lt>applicationE<gt>> module.  Their meanings are
+application specific.  As noted in L</Caching> the caching mechanism
+is B<not> keyed off of this information -- use B<CacheID> to ensure a
+unique cache key.
 
 This option may not be shared.
 
