@@ -1,5 +1,8 @@
 Revision history for Perl extension App::Env.
 
+0.04  Fri Aug 17 17:02:34 EDT 2007
+        - clean up passing of AppOpts to app env module's envs() func
+
 0.03  Fri Aug 17 12:26:32 EDT 2007
         - remove dependency on Module::Load::Conditional
 
