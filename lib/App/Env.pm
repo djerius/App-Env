@@ -30,7 +30,7 @@ use Carp;
 use Params::Validate qw(:all);
 
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use overload
   '%{}' => '_envhash',
