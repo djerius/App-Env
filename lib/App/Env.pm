@@ -1094,7 +1094,7 @@ L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=App-Env>.
 
 =head1 SEE ALSO
 
-B<app-env-exec>
+B<appexec>
 
 
 =head1 AUTHOR
