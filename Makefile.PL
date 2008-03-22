@@ -1,3 +1,5 @@
+require 5.008000;
+
 use strict;
 use warnings;
 use inc::Module::Install;
