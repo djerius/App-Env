@@ -29,6 +29,10 @@ use UNIVERSAL qw( isa );
 use Carp;
 use Params::Validate qw(:all);
 
+# need to distinguish between a non-existent module
+# and one which has compile errors.
+use Module::Find qw( );
+
 
 our $VERSION = '0.06';
 
@@ -38,10 +42,48 @@ use overload
   fallback => 1;
 
 
+my %existsModule;
+my %Modules;
+
+sub _loadModuleList
+{
+    %existsModule = ();
+
+    for my $path ( Module::Find::findallmod( 'App::Env' ) )
+    {
+        # greedy match picks up full part of path
+        my ( $base, $module ) = $path =~ /^(.*)::(.*)/;
+
+        $Modules{$base} ||= [];
+        push @{$Modules{$base}}, $module;
+
+        $existsModule{$path} = $path;
+    }
+
+    return;
+}
+
+
+sub _existsModule
+{
+    my ( $module ) = @_;
+
+    # (re)load cache if we can't find the module in the list
+    _loadModuleList
+      unless $existsModule{$module};
+
+    # really check
+    return $existsModule{$module};
+}
+
 # allow site specific site definition
 BEGIN {
-    eval 'use App::Env::Site'
-      unless exists $ENV{APP_ENV_SITE};
+
+    if ( ! exists $ENV{APP_ENV_SITE} && _existsModule('App::Env::Site') )
+    {
+        eval 'use App::Env::Site';
+        croak( "Error loading App::Env::Site: $@\n" ) if $@;
+    }
 }
 
 
@@ -134,9 +176,10 @@ sub _load_envs
     # are being loaded in one call.  Checking caching requires that we generate
     # a cacheid from the applications' cacheids.
 
-    # if import is called as import( [$app, \%opts], \%shared_opts ), this is
-    # equivalent to import( $app, { %shared_opts, %opts } ), but we still validate
-    # %shared_opts as SharedOptions, just to be precise.
+    # if import is called as import( [$app, \%opts], \%shared_opts ),
+    # this is equivalent to import( $app, { %shared_opts, %opts } ),
+    # but we still validate %shared_opts as SharedOptions, just to be
+    # precise.
 
     # if there's a single application passed as a scalar (rather than
     # an array containing the app name and options), treat @opts as
@@ -341,27 +384,77 @@ sub uncache
 	croak( "must specify App or CacheID options\n" )
 	  unless defined $opt{App};
 
-	delete $EnvCache{ _cacheid( _modulename( $opt{App}, $opt{Site} ), {} ) };
+        $opt{Site} ||= _App_Env_Site();
+
+        # don't use normal rules for Site specification as we're trying
+        # to delete a specific one.
+	delete $EnvCache{ _cacheid( _modulename( $opt{Site}, $opt{App} ), {} )};
     }
+
+    return;
+}
+
+sub _modulename
+{
+    return join( '::', 'App::Env', @_ );
 }
 
 
+# construct a module name based upon the current or requested site.
+# requires the module if found.  returns the module name if module is
+# found, false if not, die's if require fails
 
-# construct a module name based upon the current or requested
-# site.
-sub _modulename
+sub _require_module
 {
-    my ( $app, $usite ) = @_;
+    my ( $app, $usite, $loop ) = @_;
+
+    $loop ||= 1;
+    die( "too many alias loops for $app\n" )
+      if $loop == 10;
+
+    my @sites = _App_Env_Site();
+    push @sites, $usite
+      if defined $usite && $usite ne '';
+
+    # check possible sites, in turn.
+    my ( $site ) = grep { _existsModule( _modulename( $_, $app ) ) }
+                         @sites;
+    my $module =
+      defined $site
+        ? _modulename( $site, $app )
+        : _existsModule( _modulename( $app ) );
 
 
-    my @site = (
-		exists $ENV{APP_ENV_SITE} && $ENV{APP_ENV_SITE} ne ''
-		                                    ? $ENV{APP_ENV_SITE}
-		: defined $usite && $usite ne ''    ? $usite
-		:                                     ()
-	       );
+    if ( defined $module )
+    {
+        eval "require $module"
+          or die $@;
 
-    return join('::', 'App::Env', @site, $app );
+        # see if this is an alias
+        if ( $module->can('alias') )
+        {
+            no strict 'refs';
+            return _require_module( &{"${module}::alias"}, $usite, ++$loop );
+        }
+
+    }
+
+    else
+    {
+        return;
+    }
+
+    return $module;
+}
+
+# consolidate handling of APP_ENV_SITE environment variable
+
+sub _App_Env_Site {
+
+    return $ENV{APP_ENV_SITE}
+      if exists $ENV{APP_ENV_SITE} && $ENV{APP_ENV_SITE} ne '';
+
+    return;
 }
 
 sub _cacheid
@@ -377,10 +470,10 @@ sub _cacheid
 
 sub _exclude_param_check
 {
-    ! ref $_[0]
-      || 'ARRAY' eq ref $_[0]
-	|| 'Regexp' eq ref $_[0]
-	  || 'CODE' eq ref $_[0];
+         ! ref $_[0]
+      || 'ARRAY'  eq ref $_[0]
+      || 'Regexp' eq ref $_[0]
+      || 'CODE'   eq ref $_[0];
 }
 
 sub env     {
@@ -568,6 +661,8 @@ sub exec
 }
 
 
+
+
 ###############################################
 
 package App::Env::_app;
@@ -598,7 +693,14 @@ sub new
     {
 	# make copy of options
 	$opt{opt} = { %{$opt{opt}} };
-	$opt{module}  = App::Env::_modulename( $opt{app}, $opt{opt}{Site} );
+
+	$opt{module}  = eval { App::Env::_require_module( $opt{app}, $opt{opt}{Site} ) };
+        croak( "error loading application environment modulefor $opt{app}:\n", $@ )
+          if $@;
+
+        die( "application environment module for $opt{app} does not exist\n" )
+          unless defined $opt{module};
+
 	$opt{cacheid} = defined $opt{opt}{CacheId}
 	                  ? $opt{opt}{CacheId}
 			  : App::Env::_cacheid( $opt{module}, $opt{opt} );
@@ -637,17 +739,18 @@ sub load {
     return $self->{ENV} if exists $self->{ENV};
 
     my $module = $self->{module};
-    eval "require $module";
-    croak( "error loading application environment module",
-	   " ($module) for $self->{app}:\n", $@ )
-      if $@;
 
     my $envs;
+    if ( $module->can('envs' ) )
     {
 	no strict 'refs';
 	$envs = eval { &{"${module}::envs"}( $self->{opt}{AppOpts} ) };
 	croak( "error in ${module}::envs: $@\n" )
 	  if $@;
+    }
+    else
+    {
+        croak( "$module does not have an 'envs' function\n" );
     }
 
     # make copy of environment
@@ -784,7 +887,6 @@ a means for loading an alternate application module.  It does this
 by loading the first existant module from the following set of module names:
 
   App::Env::$SITE::$app
-  App::Env::$SITE::$app
   App::Env::$app
 
 The C<$SITE> variable is taken from the environment variable
@@ -825,6 +927,17 @@ B<App::Env::Site> module to transparenlty automate things:
 
   1;
 
+=head2 Application Aliases
+
+If application environments should be available under alternate names
+(primarily for use B<appexec>), a module should be created for each alias
+with the single class method B<alias> which should return the name of
+the original application.  For example, to make C<App3> be an alias
+for C<App1> create the following F<App3.pm> module:
+
+  package App::Env::App3;
+  sub alias { return 'App1' };
+  1;
 
 =head1 INTERFACE
 
@@ -913,10 +1026,14 @@ to identify the merged environment.
   App::Env::uncache( CacheID => $cacheid )
 
 
-Delete the cache entry for the given application.  It is currently
-I<not> possible to use this interface to explicitly uncache
-multi-application environments if they have not been given a unique
-cache id.  It is possible using B<App::Env> objects.
+Delete the cache entry for the given application.  If C<Site> is not
+specified, the site is determined as specified in </Site Specific
+Contexts>.
+
+It is currently I<not> possible to use this interface to
+explicitly uncache multi-application environments if they have not
+been given a unique cache id.  It is possible using B<App::Env>
+objects.
 
 The available options are:
 
@@ -1124,6 +1241,11 @@ current environment, then simply
 
   use App::Env qw( PackageName );
 
+=item A single application with options
+
+If the B<CIAO> environment module provides a C<Version> option:
+
+  use App::Env ( 'CIAO', { AppOpts => { Version => 3.4 } } );
 
 =item Two compatible applications
 
@@ -1172,6 +1294,8 @@ into play:
 This hopefully won't overfill the shell's command buffer. If you need
 to specify only parts of the environment, use the B<str> method to
 explicitly create the arguments to the B<env> command.
+
+=back
 
 =head1 BUGS AND LIMITATIONS
 
