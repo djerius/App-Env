@@ -57,6 +57,13 @@ not run with the B<-f> flag, the user's F<.cshrc> will be sourced, the
 user's modifications to B<LD_LIBRARY_PATH> will be lost, and breakage
 may happen.
 
+With that said, it may be necessary in some cases to provide an
+environment which is independent of the current one.  If a module is
+capable of doing so, it should do so when presented with the
+B<Pristine> B<AppOpts> option.  If it is not capable of doing so the
+presence of that option should be treated as an error.  Pristine
+environments will by definition cause problems in merged environments.
+
 =head1 Functions
 
 They should define the following functions:
