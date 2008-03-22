@@ -64,6 +64,28 @@ B<Pristine> B<AppOpts> option.  If it is not capable of doing so the
 presence of that option should be treated as an error.  Pristine
 environments will by definition cause problems in merged environments.
 
+=head2 Application Aliases
+
+If application environments should be available under alternate names
+(primarily for use B<appexec>), a module should be created for each alias
+with the single class method B<alias> which should return the name of
+the original application.  For example, to make C<App3> be an alias
+for C<App1> create the following F<App3.pm> module:
+
+  package App::Env::App3;
+  sub alias { return 'App1' };
+  1;
+
+The aliased environment can provide presets for B<AppOpts> by returning
+a hash as well as the application name:
+
+  package App::Env::ciao34;
+  sub alias { return 'CIAO', { Version => 3.4 } };
+  1;
+
+These will be merged with any C<AppOpts> passed in via B<import()>, with
+the latter taking precedence.
+
 =head1 Functions
 
 They should define the following functions:

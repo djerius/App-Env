@@ -406,7 +406,9 @@ sub _modulename
 
 sub _require_module
 {
-    my ( $app, $usite, $loop ) = @_;
+    my ( $app, $usite, $loop, $app_opts ) = @_;
+
+    $app_opts ||= {};
 
     $loop ||= 1;
     die( "too many alias loops for $app\n" )
@@ -434,9 +436,11 @@ sub _require_module
         if ( $module->can('alias') )
         {
             no strict 'refs';
-            return _require_module( &{"${module}::alias"}, $usite, ++$loop );
+            ( $app, my $napp_opts ) = &{"${module}::alias"}();
+            @{$app_opts}{keys %$napp_opts} = @{$napp_opts}{keys %$napp_opts}
+              if $napp_opts;
+            return _require_module( $app, $usite, ++$loop, $app_opts );
         }
-
     }
 
     else
@@ -444,7 +448,7 @@ sub _require_module
         return;
     }
 
-    return $module;
+    return ( $module, $app_opts );
 }
 
 # consolidate handling of APP_ENV_SITE environment variable
@@ -557,7 +561,7 @@ sub _filter_env
     return \%env;
 }
 
-# return a hashref with the specified variables included
+# return a list of variables which matched the specifications.
 # this takes a list of scalars, coderefs, or regular expressions.
 sub _match_var
 {
@@ -694,12 +698,17 @@ sub new
 	# make copy of options
 	$opt{opt} = { %{$opt{opt}} };
 
-	$opt{module}  = eval { App::Env::_require_module( $opt{app}, $opt{opt}{Site} ) };
-        croak( "error loading application environment modulefor $opt{app}:\n", $@ )
+	( $opt{module}, my $app_opts )
+          = eval { App::Env::_require_module( $opt{app}, $opt{opt}{Site} ) };
+        croak( "error loading application environment module for $opt{app}:\n", $@ )
           if $@;
 
         die( "application environment module for $opt{app} does not exist\n" )
           unless defined $opt{module};
+
+        # merge possible alias AppOpts
+        $opt{opt}{AppOpts} ||= {};
+        $opt{opt}{AppOpts} = { %$app_opts, %{$opt{opt}{AppOpts}} };
 
 	$opt{cacheid} = defined $opt{opt}{CacheId}
 	                  ? $opt{opt}{CacheId}
@@ -938,6 +947,16 @@ for C<App1> create the following F<App3.pm> module:
   package App::Env::App3;
   sub alias { return 'App1' };
   1;
+
+The aliased environment can provide presets for B<AppOpts> by returning
+a hash as well as the application name:
+
+  package App::Env::ciao34;
+  sub alias { return 'CIAO', { Version => 3.4 } };
+  1;
+
+These will be merged with any C<AppOpts> passed in via B<import()>, with
+the latter taking precedence.
 
 =head1 INTERFACE
 
