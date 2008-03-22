@@ -16,6 +16,7 @@ requires 'Params::Validate';
 requires 'Pod::Usage';
 requires 'File::Temp';
 requires 'File::Basename';
+requires 'Module::Find';
 
 install_script 'bin/appexec';
 
