@@ -13,7 +13,7 @@ use App::Env;
 
 if ( Env::Path->PATH->Whence( 'env' ) )
 {
-    plan tests => 6;
+    plan tests => 7;
 }
 else
 {
@@ -58,4 +58,5 @@ test_exclude( sub { my( $var, $val ) = @_;
 
 
 # test for TERMCAP handling
-ok ( $app1->str( 'TERMCAP' ) =~ /TERMCAP/, 'TERMCAP handling' )
+ok ( $app1->str( ) !~ /\bTERMCAP\b/, 'TERMCAP handling' );
+ok ( $app1->str( 'TERMCAP' ) =~ /\bTERMCAP\b/, 'TERMCAP handling' );
