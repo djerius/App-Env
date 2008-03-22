@@ -490,34 +490,34 @@ sub env     {
 	      { Exclude => { callbacks => { 'type' => \&_exclude_param_check },
 			     default => undef
 			   },
-                Include => { callbacks => { 'type' => \&_exclude_param_check },
-                             optional => 1
-			   },
               } );
 
+    # Exclude is only allowed in scalar calling context where
+    # @_ is empty, has more than one element, or the first element
+    # is not a scalar.
+    die( "Cannot use Exclude in this calling context\n" )
+      if $opt{Exclude} && ( wantarray() || ( @_ == 1 && ! ref $_[0] ) );
 
-    if ( @_ )
+
+    my $include =  [ @_ ? @_ : qr/.*/ ];
+    my $env = $self->_envhash;
+
+    my @vars = $self->_filter_env( $include, $opt{Exclude} );
+
+    if ( wantarray() )
     {
-	croak( "Include or Exclude options may be used only ",
-               "when requesting the full environment\n" )
-	  if defined $opt{Exclude} || defined $opt{Include};
-
-	if ( wantarray() )
-	{
-	    return  map { $self->_var('app')->{ENV}->{$_} } @_;
-	}
-	else
-	{
-	    return $self->_var('app')->{ENV}->{$_[0]};
-	}
+        return map { exists $env->{$_} ? $env->{$_} : undef } @vars;
+    }
+    elsif ( @_ == 1 && ! ref $_[0] )
+    {
+        return $env->{$vars[0]};
     }
     else
     {
-        $opt{Include} ||= [ qr /.*/ ];
-
-	return $self->_filter_env( $opt{Include}, $opt{Exclude} );
+        my %env;
+        @env{@vars} = @{$self->_envhash}{@vars};
+        return \%env;
     }
-
 }
 
 
@@ -525,44 +525,45 @@ sub env     {
 sub str
 {
     my $self = shift;
+    my @opts = ( 'HASH' eq ref $_[-1] ? pop : {} );
 
     # validate type.  Params::Validate doesn't do Regexp, so
     # this is a bit messy.
-    my %opt = 
-      validate( @_,
+    my %opt =
+      validate( @opts,
 	      { Exclude => { callbacks => { 'type' => \&_exclude_param_check },
 			     default => [ 'TERMCAP' ]
 			   },
-                Include => { callbacks => { 'type' => \&_exclude_param_check },
-			     default => [ qr/.*/ ]
-			   },
               } );
 
-    my $env = $self->_filter_env( $opt{Include}, $opt{Exclude} );
+    my $include =  [@_ ? @_ : qr/.*/];
 
+    my $env = $self->_envhash;
+    my @vars = grep { exists $env->{$_} }
+                    $self->_filter_env( $include, $opt{Exclude} );
     return join( ' ',
-		 map { "$_=" . _shell_escape($env->{$_}) } keys %$env
+		 map { "$_=" . _shell_escape($env->{$_}) } @vars
 	       );
 }
 
-# return a hashref with the specified variables excluded
-# this takes a list of scalars, coderefs, or regular expressions.
+# return a list of included variables, in the requested
+# order, based upon a list of include and exclude specs.
+# variable names  passed as plain strings are not checked
+# for existance in the environment.
 sub _filter_env
 {
     my ( $self, $included, $excluded ) = @_;
 
-    my @include = $self->_match_var( $included );
     my @exclude = $self->_match_var( $excluded );
 
-    my %env;
-    @env{@include} = @{$self->_envhash}{@include};
-    delete @env{@exclude};
-
-    return \%env;
+    my %exclude = map { $_ => 1 } @exclude;
+    return grep { ! $exclude{$_} } $self->_match_var( $included );
 }
 
 # return a list of variables which matched the specifications.
 # this takes a list of scalars, coderefs, or regular expressions.
+# variable names  passed as plain strings are not checked
+# for existance in the environment.
 sub _match_var
 {
     my ( $self, $match ) = @_;
@@ -578,15 +579,17 @@ sub _match_var
 
         if ( 'Regexp' eq ref $spec )
         {
-            @keys = grep { /$spec/ } keys %$env;
+            push @keys, grep { /$spec/ } keys %$env;
         }
         elsif ( 'CODE' eq ref $spec )
         {
-            @keys = grep { $spec->($_, $env->{$_}) } keys %$env;
+            push @keys, grep { $spec->($_, $env->{$_}) } keys %$env;
         }
         else
         {
-            @keys = grep { $_ eq $spec } keys %$env;
+            # always return a plain name.  this allows
+            #   @values = $env->env( @names) to work.
+            push @keys, $spec;
         }
     }
 
@@ -1131,48 +1134,75 @@ environment is being cached, delete the cache.
 =item env
 
   # return a hashref of the entire environment (similar to %{$env})
-  $env_hashref = $env->env( \%options );
+  $hashref = $env->env( );
 
   # return the value of a given variable in the environment
-  $value = $env->env('variable')
+  $value = $env->env( $variable_name )
 
   # return an array of values of particular variables.
-  @env_vals = $env->env( @variable_names );
+  # names should be strings
+  @values = $env->env( @variable_names );
 
-Return either the entire environment as a hashref (similar to simply
-using the %{} operator) or return the value of one or more variables
-in the environment.  When called in a scalar context it will return
-the value of the first variable passed to it.
+  # match variable names and return a hashref
+  $hashref = $env->env( @match_specifications );
 
-The available options are:
+  # exclude specific variables
+  $hashref = $env->env( { Exclude => $match_spec   } );
+  $hashref = $env->env( { Exclude => \@match_specs } );
+  $hashref = $env->env( @match_specs, { Exclude => $match_spec   } );
+  $hashref = $env->env( @match_specs, { Exclude => \@match_specs } );
+
+Return all or parts of the environment.  What is returned
+depends upon the type of argument and which of the
+following contexts matches:
 
 =over
 
-=item C<Include> I<array> or I<scalar>
+=item 0
 
-This specifies variables to include from the returned environment.  It
-may be either a single value or an array of values.
+If called with no arguments (or just an B<Exclude> option,
+as discussed below) return a hashref containing the environment.
 
-A value may be a string (for an exact match of a variable name), a regular
-expression created with the B<qr> operator, or a subroutine
-reference.  The subroutine will be passed two arguments, the variable
-name and its value, and should return true if the variable should be
-included, false otherwise.
+=item 1
 
-=item C<Exclude> I<array> or I<scalar>
+If called in a scalar context and passed a single variable name
+(which must be a string) return the value for that variable,
+or I<undef> if it is not in the environment.
 
-This specifies variables to exclude from the returned environment.  It
-may be either a single value or an array of values.
+=item 2
 
-A value may be a string (for an exact match of a variable name), a regular
-expression created with the B<qr> operator, or a subroutine
-reference.  The subroutine will be passed two arguments, the variable
-name and its value, and should return true if the variable should be
-excluded, false otherwise.
+If called in a list context and passed a list of variable names
+(which must be strings) return an array of values for those variables
+(I<undef> for those not in the environment).
+
+=item 3
+
+If called in a scalar context and passed one or more I<match
+specifications>, return a hashref containing the subset
+of the environment which matches.  The C<Exclude> option (see below)
+may be present.
+
+A I<match specification> may be a string, (for an exact match of a
+variable name), a regular expression created with the B<qr> operator,
+or a subroutine reference.  The subroutine will be passed two
+arguments, the variable name and its value, and should return true if
+the variable should be excluded, false otherwise.
+
+To avoid mistaking this context for context 1 if the I<match specification>
+is a single string, enclose it in an array, e.g.
+
+   # this is context 1
+   $value = $env->env( $variable_name );
+
+   # this is context 3
+   $hash = $env->env( [ $variable_name ] );
 
 =back
 
-Includes are processed before excludes.
+Variable names may be excluded from the list by passing a hash with
+the key C<Exclude> as the last argument (valid only in contexts 0 and
+3).  The value is either a scalar or an arrayref composed of match
+specifications (as an arrayref) as described in context 3.
 
 =item module
 
@@ -1184,43 +1214,17 @@ concatenated, seperated by the C<$;> (subscript separator) character.
 
 =item str
 
-  $envstr = $env->str( %options );
+  $envstr = $env->str( @match_specifications, \%options );
 
 This function returns a string which may be used with the *NIX B<env>
 command to set the environment.  The string contains space separated
-C<var=value> pairs, with shell magic characters escaped.  The available
-options are:
+C<var=value> pairs, with shell magic characters escaped.
 
-=over
+The environment may be pared down by passing I<match specifications>
+and an C<Exclude> option; see the documentation for the B<env> method,
+context 3, for more information.
 
-=item C<Include> I<array> or I<scalar>
-
-This specifies variables to include from the returned environment.  It
-may be either a single value or an array of values.
-
-A value may be a string (for an exact match of a variable name), a regular
-expression created with the B<qr> operator, or a subroutine
-reference.  The subroutine will be passed two arguments, the variable
-name and its value, and should return true if the variable should be
-included, false otherwise.
-
-=item C<Exclude> I<array> or I<scalar>
-
-This specifies variables to exclude from the returned environment.  It
-may be either a single value or an array of values.
-
-A value may be a string (for an exact match of a variable name), a regular
-expression created with the B<qr> operator, or a subroutine
-reference.  The subroutine will be passed two arguments, the variable
-name and its value, and should return true if the variable should be
-excluded, false otherwise.
-
-It defaults to C<TERMCAP> (a variable which is usually large and
-unnecessary).
-
-=back
-
-Includes are processed before excludes.
+By default the B<TERMCAP> variable is excluded.
 
 =item system
 

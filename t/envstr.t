@@ -26,7 +26,7 @@ my ( $envstr, $output );
 
 # limit env string so it doesn't overflow shell buffer on some test
 # systems
-$envstr = $app1->str( { Include => qr/Site1_App1.*/ } );
+$envstr = $app1->str( qr/Site1_App1.*/ );
 
 $output = qx{env $envstr $^X -e 'print \$ENV{Site1_App1}'};
 die "error running env: $@\n" if $@;
