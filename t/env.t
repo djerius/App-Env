@@ -21,7 +21,7 @@ is( $env->{Site1_App1}, '1', 'env' );
 sub test_exclude {
     my ( $exclude, $label ) = @_;
 
-    my $env = $app1->env( Exclude => $exclude );
+    my $env = $app1->env( {Exclude => $exclude} );
 
     ok( ! exists $env->{Site_App1}, $label );
 }

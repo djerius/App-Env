@@ -33,7 +33,7 @@ is( $output, '1', 'envstr' );
 sub test_exclude {
     my ( $exclude, $label ) = @_;
 
-    my $envstr = $app1->str( Exclude => $exclude );
+    my $envstr = $app1->str( { Exclude => $exclude } );
 
     my $output = qx{env $envstr $^X -e 'print \$ENV{Site1_App1}'};
 
