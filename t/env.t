@@ -1,4 +1,4 @@
-use Test::More tests => 5;
+use Test::More tests => 9;
 
 use strict;
 use warnings;
@@ -34,3 +34,11 @@ test_exclude( [ 'Site1_App1' ], 'env; exclude array' );
 test_exclude( sub { my( $var, $val ) = @_;
 		    return $var eq 'Site1_App1' ? 1 : 0 },
 	      'env; exclude code' );
+
+$env = $app1->env( { Include => qr/Site1_App1.*/ } );
+is ( keys %$env, 2, 'include re: count' );
+
+$env = $app1->env( { Include => 'Site1_App1' } );
+is ( keys %$env, 1, 'include: count' );
+ok( exists $env->{Site1_App1}, 'include: exists' );
+is( $env->{Site1_App1}, '1', 'include: value' );

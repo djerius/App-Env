@@ -388,16 +388,22 @@ sub env     {
     my @opts = ( 'HASH' eq ref $_[-1] ? pop : {} );
 
     # mostly a duplicate of what's in str(). ick.
-    my %opt = 
+    my %opt =
       validate( @opts,
 	      { Exclude => { callbacks => { 'type' => \&_exclude_param_check },
 			     default => undef
-			   } } );
+			   },
+                Include => { callbacks => { 'type' => \&_exclude_param_check },
+                             optional => 1
+			   },
+              } );
+
 
     if ( @_ )
     {
-	croak( "Exclude option may be used only when requesting the full environment\n" )
-	  if defined $opt{Exclude};
+	croak( "Include or Exclude options may be used only ",
+               "when requesting the full environment\n" )
+	  if defined $opt{Exclude} || defined $opt{Include};
 
 	if ( wantarray() )
 	{
@@ -410,7 +416,9 @@ sub env     {
     }
     else
     {
-	return $self->_exclude( $opt{Exclude} );
+        $opt{Include} ||= [ qr /.*/ ];
+
+	return $self->_filter_env( $opt{Include}, $opt{Exclude} );
     }
 
 }
@@ -427,9 +435,13 @@ sub str
       validate( @_,
 	      { Exclude => { callbacks => { 'type' => \&_exclude_param_check },
 			     default => [ 'TERMCAP' ]
-			   } } );
+			   },
+                Include => { callbacks => { 'type' => \&_exclude_param_check },
+			     default => [ qr/.*/ ]
+			   },
+              } );
 
-    my $env = $self->_exclude( $opt{Exclude} );
+    my $env = $self->_filter_env( $opt{Include}, $opt{Exclude} );
 
     return join( ' ',
 		 map { "$_=" . _shell_escape($env->{$_}) } keys %$env
@@ -438,39 +450,51 @@ sub str
 
 # return a hashref with the specified variables excluded
 # this takes a list of scalars, coderefs, or regular expressions.
-sub _exclude
+sub _filter_env
 {
-    my ( $self, $excluded ) = @_;
+    my ( $self, $included, $excluded ) = @_;
 
-    my %env = %{$self};
+    my @include = $self->_match_var( $included );
+    my @exclude = $self->_match_var( $excluded );
 
-    $excluded = [ $excluded ] unless 'ARRAY' eq ref $excluded;
-
-    for my $exclude ( @$excluded )
-    {
-	next unless defined $exclude;
-
-        my @delkeys;
-
-        if ( 'Regexp' eq ref $exclude )
-        {
-            @delkeys = grep { /$exclude/ } keys %env;
-        }
-        elsif ( 'CODE' eq ref $exclude )
-        {
-            @delkeys = grep { $exclude->($_, $env{$_}) } keys %env;
-        }
-        else
-        {
-            @delkeys = grep { $_ eq $exclude } keys %env;
-        }
-
-        delete @env{@delkeys};
-    }
+    my %env;
+    @env{@include} = @{$self->_envhash}{@include};
+    delete @env{@exclude};
 
     return \%env;
 }
 
+# return a hashref with the specified variables included
+# this takes a list of scalars, coderefs, or regular expressions.
+sub _match_var
+{
+    my ( $self, $match ) = @_;
+
+    my $env = $self->_envhash;
+
+    $match = [ $match ] unless 'ARRAY' eq ref $match;
+
+    my @keys;
+    for my $spec ( @$match )
+    {
+	next unless defined $spec;
+
+        if ( 'Regexp' eq ref $spec )
+        {
+            @keys = grep { /$spec/ } keys %$env;
+        }
+        elsif ( 'CODE' eq ref $spec )
+        {
+            @keys = grep { $spec->($_, $env->{$_}) } keys %$env;
+        }
+        else
+        {
+            @keys = grep { $_ eq $spec } keys %$env;
+        }
+    }
+
+    return @keys;
+}
 
 
 my $MAGIC_CHARS;
@@ -988,7 +1012,18 @@ The available options are:
 
 =over
 
-=item B<Exclude> I<array> or I<scalar>
+=item C<Include> I<array> or I<scalar>
+
+This specifies variables to include from the returned environment.  It
+may be either a single value or an array of values.
+
+A value may be a string (for an exact match of a variable name), a regular
+expression created with the B<qr> operator, or a subroutine
+reference.  The subroutine will be passed two arguments, the variable
+name and its value, and should return true if the variable should be
+included, false otherwise.
+
+=item C<Exclude> I<array> or I<scalar>
 
 This specifies variables to exclude from the returned environment.  It
 may be either a single value or an array of values.
@@ -1000,6 +1035,8 @@ name and its value, and should return true if the variable should be
 excluded, false otherwise.
 
 =back
+
+Includes are processed before excludes.
 
 =item module
 
@@ -1020,7 +1057,18 @@ options are:
 
 =over
 
-=item B<Exclude> I<array> or I<scalar>
+=item C<Include> I<array> or I<scalar>
+
+This specifies variables to include from the returned environment.  It
+may be either a single value or an array of values.
+
+A value may be a string (for an exact match of a variable name), a regular
+expression created with the B<qr> operator, or a subroutine
+reference.  The subroutine will be passed two arguments, the variable
+name and its value, and should return true if the variable should be
+included, false otherwise.
+
+=item C<Exclude> I<array> or I<scalar>
 
 This specifies variables to exclude from the returned environment.  It
 may be either a single value or an array of values.
@@ -1035,6 +1083,8 @@ It defaults to C<TERMCAP> (a variable which is usually large and
 unnecessary).
 
 =back
+
+Includes are processed before excludes.
 
 =item system
 
