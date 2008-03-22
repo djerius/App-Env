@@ -58,5 +58,10 @@ test_exclude( sub { my( $var, $val ) = @_;
 
 
 # test for TERMCAP handling
-ok ( $app1->str( ) !~ /\bTERMCAP\b/, 'TERMCAP handling' );
-ok ( $app1->str( 'TERMCAP' ) =~ /\bTERMCAP\b/, 'TERMCAP handling' );
+SKIP: {
+    skip "no TERMCAP in environment; can't test for it", 2
+      unless exists $ENV{TERMCAP};
+
+    ok ( $app1->str( ) !~ /\bTERMCAP\b/, 'TERMCAP handling' );
+    ok ( $app1->str( 'TERMCAP' ) =~ /\bTERMCAP\b/, 'TERMCAP handling' );
+}
