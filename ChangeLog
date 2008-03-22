@@ -2,7 +2,23 @@
 
 	Tag 0.07
 
-2008-03-22 17:18 -0400  djerius  <djerius@cfa.harvard.edu>  (91e9e88e4e2d [tip])
+2008-03-22 18:07 -0400  djerius  <djerius@cfa.harvard.edu>  (6981a6673e36 [tip])
+
+	* t/envstr.t:
+	improved TERMCAP testing
+
+2008-03-22 18:02 -0400  djerius  <djerius@cfa.harvard.edu>  (2257fa1aa1fa)
+
+	* lib/App/Env.pm, t/envstr.t:
+	explicit request required for str() to output TERMCAP, to simplify
+	Excludes
+
+2008-03-22 17:21 -0400  djerius  <djerius@cfa.harvard.edu>  (456572d64437)
+
+	* ChangeLog, Changes, bin/appexec, lib/App/Env.pm:
+	update for release
+
+2008-03-22 17:18 -0400  djerius  <djerius@cfa.harvard.edu>  (91e9e88e4e2d)
 
 	* lib/App/Env.pm, t/env.t, t/envstr.t:
 	merged env()/str() Include behavior into list of vars; str now takes

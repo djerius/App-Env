@@ -10,6 +10,8 @@ Revision history for Perl extension App::Env.
 	  include in a more flexible fashion.  the returned value is
 	  more flexible (more context dependent) and excruciatingly
 	  documented.
+	- more restrictive str() generation of TERMCAP to make
+	  it easier to exclude variables without needing to specify TERMCAP
  
 
 0.06  Sun Feb  3 14:11:39 EST 2008
