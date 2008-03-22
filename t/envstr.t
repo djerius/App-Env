@@ -13,7 +13,7 @@ use App::Env;
 
 if ( Env::Path->PATH->Whence( 'env' ) )
 {
-    plan tests => 5;
+    plan tests => 6;
 }
 else
 {
@@ -48,10 +48,14 @@ sub test_exclude {
 }
 
 # test exclusion
-test_exclude( qr/Site1_.*/, 'envstr; exclude regexp' );
-test_exclude( 'Site1_App1', 'envstr; exclude scalar' );
-test_exclude( [ 'Site1_App1' ], 'envstr; exclude array' );
+test_exclude( qr/Site1_.*/, 'exclude: regexp' );
+test_exclude( 'Site1_App1', 'exclude: scalar' );
+test_exclude( [ 'Site1_App1' ], 'exclude: array' );
 
 test_exclude( sub { my( $var, $val ) = @_;
 		    return $var eq 'Site1_App1' ? 1 : 0 },
-	      'envstr; exclude code' );
+	      'exclude: code' );
+
+
+# test for TERMCAP handling
+ok ( $app1->str( 'TERMCAP' ) =~ /TERMCAP/, 'TERMCAP handling' )

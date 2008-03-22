@@ -532,11 +532,18 @@ sub str
     my %opt =
       validate( @opts,
 	      { Exclude => { callbacks => { 'type' => \&_exclude_param_check },
-			     default => [ 'TERMCAP' ]
+			     optional => 1
 			   },
               } );
 
     my $include =  [@_ ? @_ : qr/.*/];
+
+    if ( ! grep { $_ eq 'TERMCAP' } @$include )
+    {
+        $opt{Exclude} ||= [];
+        $opt{Exclude} = [ $opt{Exclude} ] unless 'ARRAY' eq ref $opt{Exclude};
+        push @{$opt{Exclude}}, 'TERMCAP';
+    }
 
     my $env = $self->_envhash;
     my @vars = grep { exists $env->{$_} }
@@ -577,7 +584,13 @@ sub _match_var
     {
 	next unless defined $spec;
 
-        if ( 'Regexp' eq ref $spec )
+        if ( ! ref $spec )
+        {
+            # always return a plain name.  this allows
+            #   @values = $env->env( @names) to work.
+            push @keys, $spec;
+        }
+        elsif ( 'Regexp' eq ref $spec )
         {
             push @keys, grep { /$spec/ } keys %$env;
         }
@@ -587,9 +600,8 @@ sub _match_var
         }
         else
         {
-            # always return a plain name.  this allows
-            #   @values = $env->env( @names) to work.
-            push @keys, $spec;
+            die( "match specification is of unsupported type: ",
+                 ref $spec, "\n" );
         }
     }
 
@@ -599,7 +611,7 @@ sub _match_var
 
 my $MAGIC_CHARS;
 
-BEGIN {  ( $MAGIC_CHARS = q/\\\$"'!*{};()[]/ ) =~ s/(\W)/\\$1/g; }
+BEGIN {  ( $MAGIC_CHARS = q/\\\$"'!*{};()[]/ ) =~ s/(.)/\\$1/g; }
 
 sub _shell_escape
 {
@@ -1224,7 +1236,14 @@ The environment may be pared down by passing I<match specifications>
 and an C<Exclude> option; see the documentation for the B<env> method,
 context 3, for more information.
 
-By default the B<TERMCAP> variable is excluded.
+Because the B<TERMCAP> environment variable is often riddled with
+escape characters, which are not always handled well by shells, the
+B<TERMCAP> variable is I<always> excluded unless it is explicitly
+included via an exact variable name match specification. For example,
+
+  $envstr = $env->str( qr/.*/, 'TERMCAP );
+
+is the only means of getting all of the environment returned.
 
 =item system
 
