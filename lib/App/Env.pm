@@ -424,7 +424,7 @@ sub _require_module
     my ( $module ) =
       grep { defined $_ }
         ( map { _existsModule( _modulename( $_, $app ) ) } @sites ),
-          _modulename( $app );
+          _existsModule( _modulename( $app ) );
 
     if ( defined $module )
     {
