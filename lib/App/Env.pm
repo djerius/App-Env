@@ -546,6 +546,24 @@ sub env     {
     }
 }
 
+sub setenv {
+
+    my $self = shift;
+    my $var  = shift;
+
+    defined $var or
+      croak( "missing variable name argument\n" );
+
+    if ( @_ )
+    {
+        $self->_envhash->{$var} = $_[0];
+    }
+    else
+    {
+        delete $self->_envhash->{$var};
+    }
+
+}
 
 # return an env compatible string
 sub str
@@ -1289,6 +1307,20 @@ Variable names may be excluded from the list by passing a hash with
 the key C<Exclude> as the last argument (valid only in contexts 0 and
 3).  The value is either a scalar or an arrayref composed of match
 specifications (as an arrayref) as described in context 3.
+
+=item setenv
+
+  # set an environmental variable
+  $env->setenv( $var, $value );
+
+  # delete an environmetal variable
+  $env->setenv( $var );
+
+If C<$value> is present, assign it to the named environmental
+variable.  If it is not present, delete the variable.
+
+B<Note:> If the environment refers to a cached environment, this will
+affect all instances of the environment which share the cache.
 
 =item module
 
