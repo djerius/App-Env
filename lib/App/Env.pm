@@ -529,20 +529,19 @@ sub env     {
 
     my @vars = $self->_filter_env( $include, $opt{Exclude} );
 
+    ## no critic ( ProhibitAccessOfPrivateData )
     if ( wantarray() )
     {
-        ## no critic ( ProhibitAccessOfPrivateData )
         return map { exists $env->{$_} ? $env->{$_} : undef } @vars;
     }
     elsif ( @_ == 1 && ! ref $_[0] )
     {
-        ## no critic ( ProhibitAccessOfPrivateData )
-        return $env->{$vars[0]};
+        return exists $env->{$vars[0]} ? $env->{$vars[0]} : undef;
     }
     else
     {
         my %env;
-        @env{@vars} = @{$self->_envhash}{@vars};
+        @env{@vars} = map { exists $env->{$_} ? $env->{$_} : undef } @vars;
         return \%env;
     }
 }
