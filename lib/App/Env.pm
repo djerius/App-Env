@@ -83,7 +83,7 @@ BEGIN {
 
     if ( ! exists $ENV{APP_ENV_SITE} && _existsModule('App::Env::Site') )
     {
-        eval 'use App::Env::Site';
+        eval { require App::Env::Site };
         croak( "Error loading App::Env::Site: $@\n" ) if $@;
     }
 }
@@ -286,7 +286,7 @@ sub _load_envs
 					app => $app,
 					NoLoad => 1,
 					opt => \%app_opt );
-	push @cacheids, $appo->{cacheid};
+	push @cacheids, $appo->_cacheid;
 	push @Apps, $appo;
     }
 
@@ -322,7 +322,7 @@ sub _load_envs
 	my @modules;
 	foreach my $app ( @Apps )
 	{
-	    push @modules, $app->{module};
+	    push @modules, $app->_module;
 
             # embrace new merged environment
             %ENV = %{$app->load};
@@ -334,7 +334,8 @@ sub _load_envs
 				    cacheid => $cacheid,
 				    opt => \%opts,
 				  );
-	$App->cache if $opts{Cache};
+
+        if ( $opts{Cache} ) { $App->cache; }
     }
 	
     # record the final things we need to know.
@@ -450,12 +451,14 @@ sub _require_module
 
     if ( defined $module )
     {
+        ## no critic ( ProhibitStringyEval );
         eval "require $module"
           or die $@;
 
         # see if this is an alias
         if ( $module->can('alias') )
         {
+            ## no critic ( ProhibitNoStrict )
             no strict 'refs';
             ( $app, my $napp_opts ) = &{"${module}::alias"}();
             @{$app_opts}{keys %$napp_opts} = @{$napp_opts}{keys %$napp_opts}
@@ -486,6 +489,7 @@ sub _cacheid
 {
     my ( $module, $opt ) = @_;
 
+    ## no critic ( ProhibitAccessOfPrivateData )
     return 
       defined $opt->{CacheID}
         ? $opt->{CacheID}
@@ -527,10 +531,12 @@ sub env     {
 
     if ( wantarray() )
     {
+        ## no critic ( ProhibitAccessOfPrivateData )
         return map { exists $env->{$_} ? $env->{$_} : undef } @vars;
     }
     elsif ( @_ == 1 && ! ref $_[0] )
     {
+        ## no critic ( ProhibitAccessOfPrivateData )
         return $env->{$vars[0]};
     }
     else
@@ -567,6 +573,7 @@ sub str
     }
 
     my $env = $self->_envhash;
+    ## no critic ( ProhibitAccessOfPrivateData )
     my @vars = grep { exists $env->{$_} }
                     $self->_filter_env( $include, $opt{Exclude} );
     return join( ' ',
@@ -617,6 +624,7 @@ sub _match_var
         }
         elsif ( 'CODE' eq ref $spec )
         {
+            ## no critic ( ProhibitAccessOfPrivateData )
             push @keys, grep { $spec->($_, $env->{$_}) } keys %$env;
         }
         else
@@ -805,10 +813,10 @@ sub load {
     my $module = $self->{module};
 
     my $envs;
-    if ( $module->can('envs' ) )
+    my $fenvs = $module->can('envs' );
+    if ( $fenvs )
     {
-	no strict 'refs';
-	$envs = eval { &{"${module}::envs"}( $self->{opt}{AppOpts} ) };
+	$envs = eval { $fenvs->( $self->{opt}{AppOpts} ) };
 	croak( "error in ${module}::envs: $@\n" )
 	  if $@;
     }
@@ -843,6 +851,8 @@ sub uncache {
 	    == refaddr($self->{ref});
 }
 
+sub _cacheid { $_[0]->{cacheid} };
+sub _module  { $_[0]->{module} };
 
 
 1;
