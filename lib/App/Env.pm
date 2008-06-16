@@ -353,11 +353,10 @@ sub _var {
     return ${$self}->{$var};
 }
 
-sub module  { $_[0]->_var('app')->{module} }
+sub module   { $_[0]->_var('app')->{module} }
 sub _opt     { $_[0]->_var('app')->{opt} }
-sub cacheid { $_[0]->_var('app')->{cacheid} }
-sub app     { $_[0]->_var('app') }
-sub _envhash{ $_[0]->_var('app')->{ENV} }
+sub _app     { $_[0]->_var('app') }
+sub _envhash { $_[0]->_var('app')->{ENV} }
 
 
 
@@ -370,11 +369,11 @@ sub cache
 
     if ( $cache )
     {
-	$self->app->cache;
+	$self->_app->cache;
     }
     else
     {
-	$self->app->uncache;
+	$self->_app->uncache;
     }
 }
 
