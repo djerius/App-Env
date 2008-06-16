@@ -101,10 +101,16 @@ my %SharedOptions =
 my %ApplicationOptions =
   (
      AppOpts  => { default => {} , type => HASHREF   },
-     CacheID  => { default => undef },
      %SharedOptions,
   );
 
+# options for whom defaults may be changed.  The values
+# in %OptionDefaults are references to the same hashes as in
+# ApplicationOptions & SharedOptions, so modifying them will
+# modify the others.
+my @OptionDefaults = qw( Force Cache Site SysFatal );
+my %OptionDefaults;
+@OptionDefaults{@OptionDefaults} = @ApplicationOptions{@OptionDefaults};
 
 # environment cache
 our %EnvCache;
@@ -148,10 +154,25 @@ sub import {
 	# if no arguments, nothing to do.  "use App::Env;" will cause this.
 	return unless @_;
 
+        # if the only argument is a hash, it sets defaults
+        if ( @_ == 1 && 'HASH' eq ref $_[0] )
+        {
+            config( @_ );
+            return;
+        }
+
 	App::Env->new( @_ )->import;
     }
 }
 
+sub config {
+
+    my %default = validate( @_, \%OptionDefaults );
+
+    $OptionDefaults{$_}{default} = $default{$_} for keys %default;
+
+    return;
+}
 
 sub new
 {
@@ -842,6 +863,10 @@ App::Env - manage application specific environments
   use App::Env;
   App::Env::import( $application, \%opts );
 
+  # set defaults
+  use App::Env ( \%defaults )
+  App::Env::config( %defaults );
+
   # retrieve an environment but don't import it
   $env = App::Env->new( $application, \%opts );
 
@@ -1082,6 +1107,19 @@ an exception if the passed command exits with a non-zero error.
 
 =back
 
+=back
+
+=head2 Managing Environments
+
+=over
+
+=item config
+
+  App::Env::config( %Defaults );
+
+Configure default options for environments.  See L<Changing Default
+Option Values> for more information.
+
 =item uncache
 
   App::Env::uncache( App => $app, [ Site => $site ] )
@@ -1310,6 +1348,32 @@ method to throw an exception if the command returned a non-zero exit
 value.  It also avoid invoking a shell to run the command if possible.
 
 =back
+
+=head2 Changing Default Option Values
+
+Default values for some options may be changed via any of the
+following:
+
+=over
+
+=item *
+
+Passing a hashref as the only argument when initially importing the
+package:
+
+  use App::Env \%Default;
+
+=item *
+
+Calling the B<config> function:
+
+  App::Env::config( %Default );
+
+=back
+
+The following options may have their default values changed:
+
+  Force  Cache  Site  SysFatal
 
 
 =head1 EXAMPLE USAGE
