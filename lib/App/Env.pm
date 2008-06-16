@@ -95,6 +95,7 @@ my %SharedOptions =
      Cache    => { default => 1     },
      Site     => { default => undef },
      CacheID  => { default => undef },
+     SysFatal => { default => 0, type => BOOLEAN },
   );
 
 my %ApplicationOptions =
@@ -332,6 +333,7 @@ sub _var {
 }
 
 sub module  { $_[0]->_var('app')->{module} }
+sub _opt     { $_[0]->_var('app')->{opt} }
 sub cacheid { $_[0]->_var('app')->{cacheid} }
 sub app     { $_[0]->_var('app') }
 sub _envhash{ $_[0]->_var('app')->{ENV} }
@@ -655,7 +657,15 @@ sub system
 
     {
 	local %ENV = %{$self};
-	system( @_ );
+        if ( $self->_opt->{SysFatal} )
+        {
+            require IPC::System::Simple;
+            return IPC::System::Simple::system( @_ );
+        }
+        else
+        {
+            return CORE::system( @_ );
+        }
     }
 }
 
@@ -664,9 +674,20 @@ sub qexec
   my $self = shift;
     {
 	local %ENV = %{$self};
-	return qx{ @_ };
+
+        if ( $self->_opt->{SysFatal} )
+        {
+            require IPC::System::Simple;
+            return IPC::System::Simple::capture( @_);
+        }
+        else
+        {
+            return qx{ @_ };
+        }
     }
 }
+
+*capture = \&qexec;
 
 sub exec
 {
@@ -986,7 +1007,6 @@ non-object oriented interface will suffice.
 For more complicated uses, the object oriented interface allows for
 manipulating multiple separate environments.
 
-
 =head2 Using B<App::Env> without objects
 
 Application environments may be imported into the current environment
@@ -1003,7 +1023,7 @@ function.
   App::Env::import( $application, \%options );
   App::Env::import( @applications, \%shared_options );
 
-Import the specified applications.  
+Import the specified applications.
 
 Options may be applied to specific applications by grouping
 application names and option hashes in arrays:
@@ -1021,7 +1041,6 @@ the last argument.
 
 The available options are listed below.  Not all options may be shared; these
 are noted.
-
 
 =over
 
@@ -1055,6 +1074,11 @@ into account anything in B<AppOpts>. See L</Caching> for more information.
 
 When used as a shared option for multiple applications, this will be used
 to identify the merged environment.
+
+=item SysFatal I<boolean>
+
+If true, the B<system>, B<qexec>, and B<capture> object methods will throw
+an exception if the passed command exits with a non-zero error.
 
 =back
 
@@ -1257,6 +1281,12 @@ This runs the passed command in the environment defined by B<$env>.
 It has the same argument and returned value convention as the core
 Perl B<system> command.
 
+If the B<SysFatal> flag is set for this environment,
+B<IPC::System::Simple::system> is called, which will cause this method
+to throw an exception if the command returned a non-zero exit value.
+It also avoid invoking a shell to run the command if possible.
+
+
 =item exec
 
   $env->exec( $command, @args );
@@ -1265,13 +1295,19 @@ This execs the passed command in the environment defined by B<$env>.
 It has the same argument and returned value convention as the core
 Perl B<exec> command.
 
+=item capture
 =item qexec
 
-  $env->qexec( $command, @args );
+  $output = $env->qexec( $command, @args );
 
 This acts like the B<qx{}> Perl operator.  It executes the passed
 command in the environment defined by B<$env> and returns its
-(standard) output.
+(standard) output. 
+
+If the B<SysFatal> flag is set for this environment,
+B<IPC::System::Simple::capture> is called, which will cause this
+method to throw an exception if the command returned a non-zero exit
+value.  It also avoid invoking a shell to run the command if possible.
 
 =back
 
