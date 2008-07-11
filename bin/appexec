@@ -55,11 +55,11 @@ sub main
 
 	    if ( $opt{dumpenv} =~ /^(bash|ksh)$/ )
 	    {
-		print "export $env=$val\n";
+		print "export $env=$val;\n";
 	    }
 	    elsif ( $opt{dumpenv} =~ /^(csh|tcsh)$/ )
 	    {
-		print "setenv $env $val\n";
+		print "setenv $env $val;\n";
 	    }
 	    else
 	    {
