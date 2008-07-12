@@ -657,7 +657,7 @@ sub _match_var
 
 my $MAGIC_CHARS;
 
-BEGIN {  ( $MAGIC_CHARS = q/\\\$"'!*{};()[]/ ) =~ s/(.)/\\$1/g; }
+BEGIN {  ( $MAGIC_CHARS = q/\|\?\\\$"'!*{};()[]/ ) =~ s/(.)/\\$1/g; }
 
 sub _shell_escape
 {
