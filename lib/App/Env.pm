@@ -1264,6 +1264,12 @@ If C<$cache_state> is true, cache this environment for the application
 associated with B<$env>.  If C<$cache_state> is false and this
 environment is being cached, delete the cache.
 
+=item cacheid
+
+  $cacheid = $env->cacheid;
+
+Returns the cache id for this environment.
+
 =item env
 
   # return a hashref of the entire environment (similar to %{$env})
