@@ -42,6 +42,9 @@ use overload
   fallback => 1;
 
 
+#-------------------------------------------------------
+
+
 my %existsModule;
 
 sub _loadModuleList
@@ -78,6 +81,8 @@ sub _existsModule
     return $existsModule{$path};
 }
 
+#-------------------------------------------------------
+
 # allow site specific site definition
 BEGIN {
 
@@ -88,6 +93,7 @@ BEGIN {
     }
 }
 
+#-------------------------------------------------------
 
 # Options
 my %SharedOptions =
@@ -114,6 +120,10 @@ my %OptionDefaults;
 
 # environment cache
 our %EnvCache;
+
+#-------------------------------------------------------
+#-------------------------------------------------------
+
 
 # import one or more environments.  this may be called in the following
 # contexts:
@@ -165,6 +175,8 @@ sub import {
     }
 }
 
+#-------------------------------------------------------
+
 sub config {
 
     my %default = validate( @_, \%OptionDefaults );
@@ -173,6 +185,8 @@ sub config {
 
     return;
 }
+
+#-------------------------------------------------------
 
 sub new
 {
@@ -189,6 +203,8 @@ sub new
 
     return $self;
 }
+
+#-------------------------------------------------------
 
 sub _load_envs
 {
@@ -343,6 +359,8 @@ sub _load_envs
 }
 
 
+#-------------------------------------------------------
+
 # simple accessors to reduce confusion because of double reference in $self
 
 sub _var {
@@ -360,6 +378,7 @@ sub _app     { $_[0]->_var('app') }
 sub _envhash { $_[0]->_var('app')->{ENV} }
 
 
+#-------------------------------------------------------
 
 sub cache
 {
@@ -419,11 +438,15 @@ sub uncache
     return;
 }
 
+#-------------------------------------------------------
+
 sub _modulename
 {
     return join( '::', 'App::Env', @_ );
 }
 
+
+#-------------------------------------------------------
 
 # construct a module name based upon the current or requested site.
 # requires the module if found.  returns the module name if module is
@@ -473,6 +496,8 @@ sub _require_module
     return ( $module, $app_opts );
 }
 
+#-------------------------------------------------------
+
 # consolidate handling of APP_ENV_SITE environment variable
 
 sub _App_Env_Site {
@@ -482,6 +507,8 @@ sub _App_Env_Site {
 
     return;
 }
+
+#-------------------------------------------------------
 
 sub _cacheid
 {
@@ -495,6 +522,8 @@ sub _cacheid
 }
 
 
+#-------------------------------------------------------
+
 sub _exclude_param_check
 {
          ! ref $_[0]
@@ -502,6 +531,8 @@ sub _exclude_param_check
       || 'Regexp' eq ref $_[0]
       || 'CODE'   eq ref $_[0];
 }
+
+#-------------------------------------------------------
 
 sub env     {
     my $self = shift;
@@ -544,6 +575,8 @@ sub env     {
     }
 }
 
+#-------------------------------------------------------
+
 sub setenv {
 
     my $self = shift;
@@ -562,6 +595,8 @@ sub setenv {
     }
 
 }
+
+#-------------------------------------------------------
 
 # return an env compatible string
 sub str
@@ -596,6 +631,8 @@ sub str
 	       );
 }
 
+#-------------------------------------------------------
+
 # return a list of included variables, in the requested
 # order, based upon a list of include and exclude specs.
 # variable names  passed as plain strings are not checked
@@ -609,6 +646,8 @@ sub _filter_env
     my %exclude = map { $_ => 1 } @exclude;
     return grep { ! $exclude{$_} } $self->_match_var( $included );
 }
+
+#-------------------------------------------------------
 
 # return a list of variables which matched the specifications.
 # this takes a list of scalars, coderefs, or regular expressions.
@@ -652,6 +691,8 @@ sub _match_var
     return @keys;
 }
 
+#-------------------------------------------------------
+
 
 sub _shell_escape
 {
@@ -672,7 +713,7 @@ sub _shell_escape
   $str;
 }
 
-###############################################
+#-------------------------------------------------------
 
 sub system
 {
@@ -692,6 +733,8 @@ sub system
     }
 }
 
+#-------------------------------------------------------
+
 sub qexec
 {
   my $self = shift;
@@ -710,7 +753,11 @@ sub qexec
     }
 }
 
+#-------------------------------------------------------
+
 *capture = \&qexec;
+
+#-------------------------------------------------------
 
 sub exec
 {
@@ -725,6 +772,7 @@ sub exec
 
 
 
+###############################################
 ###############################################
 
 package App::Env::_app;
@@ -799,6 +847,8 @@ sub new
     return $self;
 }
 
+#-------------------------------------------------------
+
 sub load {
     my ( $self ) = @_;
 
@@ -829,11 +879,15 @@ sub load {
     return $self->{ENV};
 }
 
+#-------------------------------------------------------
+
 sub cache {
     my ( $self ) = @_;
 
     $App::Env::EnvCache{$self->{cacheid}} = $self;
 }
+
+#-------------------------------------------------------
 
 sub uncache {
     my ( $self ) = @_;
@@ -846,9 +900,13 @@ sub uncache {
 	    == refaddr($self->{ref});
 }
 
+#-------------------------------------------------------
+
 sub _cacheid { $_[0]->{cacheid} };
 sub _module  { $_[0]->{module} };
 
+
+#-------------------------------------------------------
 
 1;
 __END__
