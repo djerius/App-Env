@@ -456,11 +456,9 @@ sub _require_module
           or die $@;
 
         # see if this is an alias
-        if ( $module->can('alias') )
+        if ( my $alias = $module->can('alias') )
         {
-            ## no critic ( ProhibitNoStrict )
-            no strict 'refs';
-            ( $app, my $napp_opts ) = &{"${module}::alias"}();
+            ( $app, my $napp_opts ) = $alias->();
             @{$app_opts}{keys %$napp_opts} = @{$napp_opts}{keys %$napp_opts}
               if $napp_opts;
             return _require_module( $app, $usite, ++$loop, $app_opts );
