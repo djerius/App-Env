@@ -370,7 +370,8 @@ sub _var {
     return ${$self}->{$var};
 }
 
-sub module   { $_[0]->_var('app')->{module} }
+sub module   { $_[0]->_var('app')->_module }
+sub cacheid  { $_[0]->_var('app')->_cacheid }
 sub _opt     { $_[0]->_var('app')->{opt} }
 sub _app     { $_[0]->_var('app') }
 sub _envhash { $_[0]->_var('app')->{ENV} }
