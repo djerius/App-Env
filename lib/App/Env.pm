@@ -138,7 +138,7 @@ sub import {
 	my $self = shift;
 	die( __PACKAGE__, "->import: too many arguments\n" )
 	  if @_;
-	
+
 	while( my ( $key, $value ) = each %{$self} )
 	{
 	    $ENV{$key} = $value;
@@ -337,7 +337,7 @@ sub _load_envs
 
         if ( $opts{Cache} ) { $App->cache; }
     }
-	
+
     # record the final things we need to know.
     $self->_var( app     => $App );
 }
@@ -488,7 +488,7 @@ sub _cacheid
     my ( $module, $opt ) = @_;
 
     ## no critic ( ProhibitAccessOfPrivateData )
-    return 
+    return
       defined $opt->{CacheID}
         ? $opt->{CacheID}
 	: $module;
@@ -841,8 +841,8 @@ sub uncache {
     my $cacheid = $self->{cacheid};
 
     delete $App::Env::EnvCache{$cacheid}
-      if exists $App::Env::EnvCache{$cacheid} 
-	&& refaddr($App::Env::EnvCache{$cacheid}{ref}) 
+      if exists $App::Env::EnvCache{$cacheid}
+	&& refaddr($App::Env::EnvCache{$cacheid}{ref})
 	    == refaddr($self->{ref});
 }
 
@@ -1358,7 +1358,7 @@ Perl B<exec> command.
 
 This acts like the B<qx{}> Perl operator.  It executes the passed
 command in the environment defined by B<$env> and returns its
-(standard) output. 
+(standard) output.
 
 If the B<SysFatal> flag is set for this environment,
 B<IPC::System::Simple::capture> is called, which will cause this
