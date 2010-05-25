@@ -237,8 +237,6 @@ sub _load_envs
     my @Apps;
     for my $app ( @apps )
     {
-	my $App;
-
 	# initialize the application specific opts from the shared opts
 	my %app_opt = %opts;
 
