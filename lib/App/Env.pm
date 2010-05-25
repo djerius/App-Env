@@ -431,7 +431,7 @@ sub uncache
 
         # don't use normal rules for Site specification as we're trying
         # to delete a specific one.
-	delete $EnvCache{ _cacheid( _modulename( $opt{Site}, $opt{App} ), {} )};
+	delete $EnvCache{ _cacheid( _modulename( $opt{Site}, $opt{App} ) )};
     }
 
     return;
@@ -511,13 +511,7 @@ sub _App_Env_Site {
 
 sub _cacheid
 {
-    my ( $module, $opt ) = @_;
-
-    ## no critic ( ProhibitAccessOfPrivateData )
-    return
-      defined $opt->{CacheID}
-        ? $opt->{CacheID}
-	: $module;
+    return join( $;, grep { defined $_ } @_ );
 }
 
 
@@ -817,7 +811,7 @@ sub new
 
 	$opt{cacheid} = defined $opt{opt}{CacheId}
 	                  ? $opt{opt}{CacheId}
-			  : App::Env::_cacheid( $opt{module}, $opt{opt} );
+			  : App::Env::_cacheid( $opt{module} );
     }
 
     # return cached entry if possible
