@@ -771,6 +771,8 @@ sub exec
 package App::Env::_app;
 
 use Carp;
+use Storable qw[ dclone freeze ];
+use Digest;
 use Scalar::Util qw( refaddr );
 
 use strict;
@@ -795,7 +797,8 @@ sub new
     else
     {
 	# make copy of options
-	$opt{opt} = { %{$opt{opt}} };
+
+	$opt{opt} = dclone($opt{opt});
 
 	( $opt{module}, my $app_opts )
           = eval { App::Env::_require_module( $opt{app}, $opt{opt}{Site} ) };
@@ -809,9 +812,43 @@ sub new
         $opt{opt}{AppOpts} ||= {};
         $opt{opt}{AppOpts} = { %$app_opts, %{$opt{opt}{AppOpts}} };
 
-	$opt{cacheid} = defined $opt{opt}{CacheId}
-	                  ? $opt{opt}{CacheId}
-			  : App::Env::_cacheid( $opt{module} );
+	if ( defined $opt{opt}{CacheID} )
+	{
+	    $opt{cacheid} = $opt{opt}{CacheID};
+	}
+	else
+	{
+	    # create a hash of unique stuff which will be folded
+	    # into the cacheid
+	    my %uniq;
+	    $uniq{AppOpts} = $opt{opt}{AppOpts}
+	      if defined $opt{opt}{AppOpts} && keys %{$opt{opt}{AppOpts}};
+
+	    my $digest;
+
+	    if ( keys %uniq )
+	    {
+		local $Storable::canonical = 1;
+		my $digest = freeze( \%uniq );
+
+		# use whatever digest aglorithm we can find.  if none is
+		# found, default to the frozen representation of the
+		# options
+		for my $alg ( qw[ SHA-256 SHA-1 MD5 ] )
+		{
+		    my $ctx = eval { Digest->new( 'SHA-256' ) };
+
+		    if ( defined $ctx )
+		    {
+			$digest = $ctx->add( $digest )->digest;
+			last;
+		    }
+		}
+
+	    }
+
+	    $opt{cacheid} = App::Env::_cacheid( $opt{module}, $digest );
+	}
     }
 
     # return cached entry if possible
@@ -986,14 +1023,9 @@ easily run applications within those environments.
 
 By default the environmental variables returned by the application
 environment modules are cached.  A cache entry is given a unique key
-which is by default generated from the module name.  This key does
-B<not> take into account the contents (if any) of the B<AppOpts> hash
-(see below).  If the application's environment changes based upon
-B<AppOpts>, an attempt to load the same application with different
-values for B<AppOpts> will lead to the retrieval of the first, cached
-environment, rather than the new environment.  To avoid this, use the
-B<CacheID> option to explicitly specify a unique key for environments
-if this will be a problem.
+which is by default generated from the module's name and the contents
+of the B<AppOpts> hash.  The cache id key may also be explicitly
+specified via the B<CacheID> option.
 
 If multiple applications are loaded via a single call to B<import> or
 B<new> the applications will be loaded incremently in the order
