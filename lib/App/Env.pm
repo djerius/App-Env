@@ -774,7 +774,6 @@ package App::Env::_app;
 use Carp;
 use Storable qw[ dclone freeze ];
 use Digest;
-use Scalar::Util qw( refaddr );
 use Object::ID;
 
 use strict;
@@ -862,14 +861,6 @@ sub new
     else
     {
 	$self = bless \%opt, $class;
-
-	# weak references don't exist under older versions of perl.
-	# on those systems, ignore the error returned by Scalar::Util.
-	# the only repercussion is that there will be a small amount
-	# of memory that won't be freed until this environment is
-	# uncached.
-
-	eval { Scalar::Util::weaken( $self->{ref} ) };
 
 	$self->load unless $self->{NoLoad};
 	delete $self->{NoLoad};
