@@ -28,6 +28,7 @@ use UNIVERSAL qw( isa );
 
 use Carp;
 use Params::Validate qw(:all);
+use Object::ID;
 
 # need to distinguish between a non-existent module
 # and one which has compile errors.
@@ -296,7 +297,7 @@ sub _load_envs
         # environments if later it turns out this is a cached
         # multi-application environment
 	%app_opt = ( validate( @opts, \%ApplicationOptions ));
-	my $appo = App::Env::_app->new( ref => $self,
+	my $appo = App::Env::_app->new( pid => $self->object_id,
 					app => $app,
 					NoLoad => 1,
 					opt => \%app_opt );
@@ -774,12 +775,13 @@ use Carp;
 use Storable qw[ dclone freeze ];
 use Digest;
 use Scalar::Util qw( refaddr );
+use Object::ID;
 
 use strict;
 use warnings;
 
-# new( ref => $ref, app => $app, opt => \%opt )
-# new( ref => $ref, env => \%env, module => $module, cacheid => $cacheid )
+# new( pid => $pid, app => $app, opt => \%opt )
+# new( pid => $pid, env => \%env, module => $module, cacheid => $cacheid )
 sub new
 {
     my ( $class, %opt ) = @_;
@@ -926,8 +928,7 @@ sub uncache {
 
     delete $App::Env::EnvCache{$cacheid}
       if exists $App::Env::EnvCache{$cacheid}
-	&& refaddr($App::Env::EnvCache{$cacheid}{ref})
-	    == refaddr($self->{ref});
+	&& $App::Env::EnvCache{$cacheid}{pid} eq $self->{pid};
 }
 
 #-------------------------------------------------------
