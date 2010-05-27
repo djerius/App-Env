@@ -1585,22 +1585,21 @@ The following options may have their default values changed:
 
 =head1 EXAMPLE USAGE
 
-=over
 
-=item A single application
+=head2 A single application
 
 This is the simplest case.  If you don't care if you "pollute" the
 current environment, then simply
 
   use App::Env qw( ApplicationName );
 
-=item A single application with options
+=head2 A single application with options
 
 If the B<CIAO> environment module provides a C<Version> option:
 
   use App::Env ( 'CIAO', { AppOpts => { Version => 3.4 } } );
 
-=item Two compatible applications
+=head2 Two compatible applications
 
 If two applications can share an environment, and you don't mind
 changing the current environment;
@@ -1627,7 +1626,7 @@ Or,
 
 if you prefer not to use the B<system> method.
 
-=item Two incompatible applications
+=head2 Two incompatible applications
 
 If two applications can't share the environment, you'll need to
 load them seperately:
@@ -1649,7 +1648,7 @@ to specify only parts of the environment, use the B<str> method to
 explicitly create the arguments to the B<env> command.
 
 
-=item Localizing changes to an environment
+=head2 Localizing changes to an environment
 
 In some contexts an environment must be customized but the changes
 shouldn't propagate into the (possibly) cached version.  A good
@@ -1669,7 +1668,6 @@ option; this will either create a new environment if none exists or
 clone an existing one.  In either case the result won't be cached and
 any changes will be localized.
 
-=back
 
 =head1 BUGS AND LIMITATIONS
 
