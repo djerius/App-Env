@@ -112,6 +112,9 @@ my %ApplicationOptions =
      %SharedOptions,
   );
 
+my %CloneOptions = %{ dclone({ map { $_ => $SharedOptions{$_} } qw[ CacheID Cache SysFatal ]} ) };
+$CloneOptions{Cache}{default} = 0;
+
 # options for whom defaults may be changed.  The values
 # in %OptionDefaults are references to the same hashes as in
 # ApplicationOptions & SharedOptions, so modifying them will
@@ -224,6 +227,27 @@ sub new
     $self->_load_envs( @_, $opts ) if @_;
 
     return $self;
+}
+
+#-------------------------------------------------------
+
+sub clone
+{
+    my $self = shift;
+
+    my %nopt = validate( @_, \%CloneOptions );
+
+    my $clone = dclone( $self );
+
+    # create new cache id
+    $clone->_cacheid( defined $nopt{CacheID} ? $nopt{CacheID} : $self->object_id );
+
+    my %opt = ( %{$clone->_opt}, %nopt );
+    $clone->_opt( \%opt );
+
+    $clone->cache( $opt{Cache} );
+
+    return $clone;
 }
 
 #-------------------------------------------------------
@@ -1297,6 +1321,24 @@ multiple applications with incompatible environments.
 
 B<new> takes the same arguments as B<App::Env::import> and returns
 an B<App::Env> object.  It does not modify the environment.
+
+
+=item clone
+
+  $clone = $app->clone( \%opts );
+
+Clone an existing environment.  The available options are C<CacheID>,
+C<Cache>, C<SysFatal> (see the documentation for the B<import> function).
+
+The cloned environment is by default not cached.  If caching is
+requested and a cache id is not provided, a unique id is created --
+it will I<not> be the same as that of the original environment.
+
+This cache id is not based on a signature of the environment, so this
+environment will effectively not be automatically reused when a
+similar environment is requested via the B<new> constructor (see
+L</Environment Caching>).
+
 
 =back
 
