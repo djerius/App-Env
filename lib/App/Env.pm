@@ -25,6 +25,7 @@ use strict;
 use warnings;
 
 use UNIVERSAL qw( isa );
+use Storable qw[ dclone ];
 
 use Carp;
 use Params::Validate qw(:all);
