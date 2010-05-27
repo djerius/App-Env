@@ -1257,7 +1257,7 @@ an exception if the passed command exits with a non-zero error.
 
 =item Temp I<boolean>
 
-If true, and the requested environment does not exist in the cache
+If true, and the requested environment does not exist in the cache,
 create it but do not cache it (this overrides the B<Cache> option).
 If the requested environment does exist in the cache, return an
 uncached clone of it.
@@ -1291,7 +1291,7 @@ Option Values> for more information.
 
 
 Delete the cache entry for the given application.  If C<Site> is not
-specified, the site is determined as specified in </Site Specific
+specified, the site is determined as specified in L</Site Specific
 Contexts>.
 
 It is currently I<not> possible to use this interface to
@@ -1392,7 +1392,7 @@ associated with B<$env>.  If C<$cache_state> is false and this
 environment is being cached, delete the cache.
 
 Note that only the original B<App::Env> object which cached the
-environment may delete it.  Object which reuse existing, cached,
+environment may delete it.  Objects which reuse existing, cached,
 environments cannot.
 
 
@@ -1647,6 +1647,27 @@ into play:
 This hopefully won't overfill the shell's command buffer. If you need
 to specify only parts of the environment, use the B<str> method to
 explicitly create the arguments to the B<env> command.
+
+
+=item Localizing changes to an environment
+
+In some contexts an environment must be customized but the changes
+shouldn't propagate into the (possibly) cached version.  A good
+example of this is in sandboxing functions which may manipulate an
+environment.
+
+The B<new()> constructor doesn't indicate whether an environment was
+freshly constructed or pulled from cache, so the user can't tell if
+manipulating it will affect other code paths.  One way around this is
+to force construction of a fresh environment using the C<Force> option
+and turning off caching via the C<Cache> option.
+
+This guarantees isolation but is inefficient (if a compatible
+environment is cached it won't be used) and any tweaks made to the
+environment by the application are not seen.  Instead, use the C<Temp>
+option; this will either create a new environment if none exists or
+clone an existing one.  In either case the result won't be cached and
+any changes will be localized.
 
 =back
 
