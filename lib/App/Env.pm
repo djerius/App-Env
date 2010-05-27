@@ -177,6 +177,26 @@ sub import {
     }
 }
 
+
+# class method
+# retrieve a cached environment.
+sub retrieve {
+
+    my ( $cacheid ) = @_;
+
+    my $self;
+
+    if ( defined $EnvCache{ $cacheid } )
+    {
+	$self = __PACKAGE__->new();
+
+	$self->_var( app => $EnvCache{ $cacheid } );
+    }
+
+
+    return $self;
+}
+
 #-------------------------------------------------------
 
 sub config {
@@ -201,7 +221,7 @@ sub new
     # use $$self->{}
     my $self = bless \ { }, $class;
 
-    $self->_load_envs( @_, $opts );
+    $self->_load_envs( @_, $opts ) if @_;
 
     return $self;
 }
@@ -1016,11 +1036,17 @@ easily run applications within those environments.
 
 =head2 Environment Caching
 
-By default the environmental variables returned by the application
-environment modules are cached.  A cache entry is given a unique key
-which is by default generated from the module's name and the contents
-of the B<AppOpts> hash.  The cache id key may also be explicitly
-specified via the B<CacheID> option.
+By default the environment returned by an application environment
+module is cached and assigned a unique cache id using a signature
+generated from the module's name and the contents of the B<AppOpts>
+hash.  When a new environment is requested (and the C<Force> option is
+false) the cache is searched for a signature matching that of the
+requested environment.
+
+The cache id key may also be explicitly specified via the B<CacheID>
+option; this will effectively prevent the cached environment from
+being automatically found.  To retrieve a cached environment using its
+cache id use the B<retrieve()> function.
 
 If multiple applications are loaded via a single call to B<import> or
 B<new> the applications will be loaded incremently in the order
@@ -1155,9 +1181,7 @@ are noted.
 
 This is a hash of options to pass to the
 C<App::Env::E<lt>applicationE<gt>> module.  Their meanings are
-application specific.  As noted in L</Caching> the caching mechanism
-is B<not> keyed off of this information -- use B<CacheID> to ensure a
-unique cache key.
+application specific.
 
 This option may not be shared.
 
@@ -1176,11 +1200,13 @@ multiple environments are loaded the I<combination> is also cached.
 
 =item CacheID
 
-A unique name for the environment. The default cache key doesn't take
-into account anything in B<AppOpts>. See L</Caching> for more information.
+A unique name for the environment. See L</Environment Caching> for more information.
 
-When used as a shared option for multiple applications, this will be used
-to identify the merged environment.
+When used as a shared option for multiple applications, this will be
+used to identify the merged environment.  Note that explicitly setting
+the cache id effectively prevents the environment from being
+automatically reused when a similar environment is requested via the
+B<new()> constructor (see L</Environment Caching>).
 
 =item SysFatal I<boolean>
 
@@ -1188,6 +1214,13 @@ If true, the B<system>, B<qexec>, and B<capture> object methods will throw
 an exception if the passed command exits with a non-zero error.
 
 =back
+
+=item retrieve
+
+  $env = App::Env::retrieve( $cacheid );
+
+Retrieve the environment with the given cache id, or undefined if it
+doesn't exist.
 
 =back
 
@@ -1254,7 +1287,7 @@ B<App::Env> objects give greater flexibility when dealing with
 multiple applications with incompatible environments.
 
 
-=head3 The constructor
+=head3 Constructors
 
 =over
 
