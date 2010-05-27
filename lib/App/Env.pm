@@ -1366,6 +1366,11 @@ If C<$cache_state> is true, cache this environment for the application
 associated with B<$env>.  If C<$cache_state> is false and this
 environment is being cached, delete the cache.
 
+Note that only the original B<App::Env> object which cached the
+environment may delete it.  Object which reuse existing, cached,
+environments cannot.
+
+
 =item cacheid
 
   $cacheid = $env->cacheid;
