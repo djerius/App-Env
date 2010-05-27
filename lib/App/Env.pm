@@ -374,7 +374,8 @@ sub _var {
 
 sub module   { $_[0]->_var('app')->_module }
 sub cacheid  { $_[0]->_var('app')->_cacheid }
-sub _opt     { $_[0]->_var('app')->{opt} }
+sub _cacheid { my $self = shift; $self->_var('app')->_cacheid(@_) }
+sub _opt     { my $self = shift; $self->_var('app')->_opt(@_) }
 sub _app     { $_[0]->_var('app') }
 sub _envhash { $_[0]->_var('app')->{ENV} }
 
@@ -433,7 +434,7 @@ sub uncache
 
         # don't use normal rules for Site specification as we're trying
         # to delete a specific one.
-	delete $EnvCache{ _cacheid( _modulename( $opt{Site}, $opt{App} ) )};
+	delete $EnvCache{ _mk_cacheid( _modulename( $opt{Site}, $opt{App} ) )};
     }
 
     return;
@@ -511,7 +512,7 @@ sub _App_Env_Site {
 
 #-------------------------------------------------------
 
-sub _cacheid
+sub _mk_cacheid
 {
     return join( $;, grep { defined $_ } @_ );
 }
@@ -849,7 +850,7 @@ sub new
 
 	    }
 
-	    $opt{cacheid} = App::Env::_cacheid( $opt{module}, $digest );
+	    $opt{cacheid} = App::Env::_mk_cacheid( $opt{module}, $digest );
 	}
     }
 
@@ -925,7 +926,8 @@ sub uncache {
 
 #-------------------------------------------------------
 
-sub _cacheid { $_[0]->{cacheid} };
+sub _opt     { @_ > 1 ? $_[0]->{opt}     = $_[1] : $_[0]->{opt} };
+sub _cacheid { @_ > 1 ? $_[0]->{cacheid} = $_[1] : $_[0]->{cacheid} };
 sub _module  { $_[0]->{module} };
 
 
