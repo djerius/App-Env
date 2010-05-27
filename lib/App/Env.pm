@@ -103,6 +103,7 @@ my %SharedOptions =
      Cache    => { default => 1     },
      Site     => { default => undef },
      CacheID  => { default => undef },
+     Temp     => { default => 0     },
      SysFatal => { default => 0, type => BOOLEAN },
   );
 
@@ -276,6 +277,9 @@ sub _load_envs
 			       ? \%ApplicationOptions
 			       : \%SharedOptions );
 
+
+    $opts{Cache} = 0 if $opts{Temp};
+
     # iterate through the applications to ensure that any application specific
     # options are valid and to form a basis for a multi-application
     # cacheid to check for cacheing.
@@ -358,7 +362,21 @@ sub _load_envs
     # use cache if possible
     if ( ! $opts{Force} && exists $EnvCache{$cacheid} )
     {
-	$App = $EnvCache{$cacheid};
+	# if this is a temporary object and a cached version exists,
+	# clone it and assign a new cache id.
+	if ( $opts{Temp} )
+	{
+	    $App = dclone( $EnvCache{$cacheid} );
+
+	    # should really call $self->_cacheid here, but $self
+	    # doesn't have an app attached to it yet so that'll fail.
+	    $App->_cacheid( $self->object_id );
+	}
+
+	else
+	{
+	    $App = $EnvCache{$cacheid};
+	}
     }
 
     # not cached; is this really just a single application?
@@ -1236,6 +1254,13 @@ B<new()> constructor (see L</Environment Caching>).
 
 If true, the B<system>, B<qexec>, and B<capture> object methods will throw
 an exception if the passed command exits with a non-zero error.
+
+=item Temp I<boolean>
+
+If true, and the requested environment does not exist in the cache
+create it but do not cache it (this overrides the B<Cache> option).
+If the requested environment does exist in the cache, return an
+uncached clone of it.
 
 =back
 
