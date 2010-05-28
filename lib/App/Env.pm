@@ -901,7 +901,7 @@ sub new
 		# options
 		for my $alg ( qw[ SHA-256 SHA-1 MD5 ] )
 		{
-		    my $ctx = eval { Digest->new( 'SHA-256' ) };
+		    my $ctx = eval { Digest->new( $alg ) };
 
 		    if ( defined $ctx )
 		    {
