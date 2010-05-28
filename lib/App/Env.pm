@@ -794,20 +794,14 @@ sub system
 
 sub qexec
 {
-  my $self = shift;
-    {
-	local %ENV = %{$self};
+    my $self = shift;
+    local %ENV = %{$self};
 
-        if ( $self->_opt->{SysFatal} )
-        {
-            require IPC::System::Simple;
-            return IPC::System::Simple::capture( @_);
-        }
-        else
-        {
-            return qx{ @_ };
-        }
-    }
+    require IPC::System::Simple;
+
+    my $res = eval { IPC::System::Simple::capture( @_); };
+
+    $@ ? ( $self->_opt->{SysFatal} ? die($@) : return ) : return $res;
 }
 
 #-------------------------------------------------------
