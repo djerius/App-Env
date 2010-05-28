@@ -1677,10 +1677,15 @@ Please report any bugs or feature requests to
 C<bug-app-env@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=App-Env>.
 
+The cache id is generated from the contents of the B<AppOpts> hash by
+freezing it with B<Storable::freeze> and either generating a digest
+using B<Digest> (if the proper modules are available) or using it
+directly.  This may cause strangeness if B<AppOpts> contains data or
+objects which do not freeze well.
+
 =head1 SEE ALSO
 
 B<appexec>
-
 
 =head1 AUTHOR
 
