@@ -24,7 +24,6 @@ package App::Env;
 use strict;
 use warnings;
 
-use UNIVERSAL qw( isa );
 use Storable qw[ dclone ];
 
 use Carp;
@@ -149,7 +148,7 @@ sub import {
     my $this = $_[0];
 
     # object method?
-    if ( ref $this && isa( $this, __PACKAGE__ ) )
+    if ( ref $this && $this->isa(__PACKAGE__) )
     {
 	my $self = shift;
 	die( __PACKAGE__, "->import: too many arguments\n" )
