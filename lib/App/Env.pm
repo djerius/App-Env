@@ -35,7 +35,7 @@ use Object::ID;
 use Module::Find qw( );
 
 
-our $VERSION = '0.15';
+our $VERSION = '0.20';
 
 use overload
   '%{}' => '_envhash',
