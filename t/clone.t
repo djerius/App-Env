@@ -37,7 +37,7 @@ $app1->setenv( 'AppEnvTestID' => $$ );
     is( $app1->env('CloneTest'), undef, "check parent env" );
 
     # and ensure that the clone has a new object id
-    isnt( $app1->object_id, $clone->object_id, "clone object id" );
+    isnt( $app1->lobject_id, $clone->lobject_id, "clone object id" );
 
 }
 

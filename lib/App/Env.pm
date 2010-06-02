@@ -241,7 +241,7 @@ sub clone
     delete ${$clone}->{id};
 
     # create new cache id
-    $clone->_cacheid( defined $nopt{CacheID} ? $nopt{CacheID} : $self->object_id );
+    $clone->_cacheid( defined $nopt{CacheID} ? $nopt{CacheID} : $self->lobject_id );
 
     my %opt = ( %{$clone->_opt}, %nopt );
     $clone->_opt( \%opt );
@@ -346,7 +346,7 @@ sub _load_envs
         # environments if later it turns out this is a cached
         # multi-application environment
 	%app_opt = ( validate( @opts, \%ApplicationOptions ));
-	my $appo = App::Env::_app->new( pid => $self->object_id,
+	my $appo = App::Env::_app->new( pid => $self->lobject_id,
 					app => $app,
 					NoLoad => 1,
 					opt => \%app_opt );
@@ -370,7 +370,7 @@ sub _load_envs
 
 	    # should really call $self->_cacheid here, but $self
 	    # doesn't have an app attached to it yet so that'll fail.
-	    $App->_cacheid( $self->object_id );
+	    $App->_cacheid( $self->lobject_id );
 	}
 
 	else
@@ -454,13 +454,13 @@ sub _envhash { $_[0]->_var('app')->{ENV} }
 
 =begin Pod::Coverage
 
-=item object_id
+=item lobject_id
 
 =end Pod::Coverage
 
 =cut
 
-    sub object_id {
+    sub lobject_id {
         my $self = shift;
 
         return $self->_var('id') if defined $self->_var('id');
@@ -858,7 +858,6 @@ package App::Env::_app;
 use Carp;
 use Storable qw[ dclone freeze ];
 use Digest;
-use Object::ID;
 
 use strict;
 use warnings;
