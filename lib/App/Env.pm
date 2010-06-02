@@ -1560,6 +1560,7 @@ It has the same argument and returned value convention as the core
 Perl B<exec> command.
 
 =item capture
+
 =item qexec
 
   $output = $env->qexec( $command, @args );
