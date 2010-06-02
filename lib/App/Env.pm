@@ -28,7 +28,7 @@ use Storable qw[ dclone ];
 
 use Carp;
 use Params::Validate qw(:all);
-use Object::ID;
+
 
 # need to distinguish between a non-existent module
 # and one which has compile errors.
@@ -238,6 +238,7 @@ sub clone
     my %nopt = validate( @_, \%CloneOptions );
 
     my $clone = dclone( $self );
+    delete ${$clone}->{id};
 
     # create new cache id
     $clone->_cacheid( defined $nopt{CacheID} ? $nopt{CacheID} : $self->object_id );
@@ -440,6 +441,32 @@ sub _opt     { my $self = shift; $self->_var('app')->_opt(@_) }
 sub _app     { $_[0]->_var('app') }
 sub _envhash { $_[0]->_var('app')->{ENV} }
 
+# would rather use Object::ID but it uses Hash::FieldHash which
+# (through no fault of its own:
+# http://rt.cpan.org/Ticket/Display.html?id=58030 ) stringify's the
+# passed reference on pre 5.10 perls, which causes problems.
+
+# stolen as much as possible from Object::ID to keep the interface the same
+{
+    my $Last_ID = "a";
+
+=pod
+
+=begin Pod::Coverage
+
+=item object_id
+
+=end Pod::Coverage
+
+=cut
+
+    sub object_id {
+        my $self = shift;
+
+        return $self->_var('id') if defined $self->_var('id');
+        return $self->_var('id', ++$Last_ID);
+    }
+}
 
 #-------------------------------------------------------
 
