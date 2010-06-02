@@ -434,12 +434,12 @@ sub _var {
     return ${$self}->{$var};
 }
 
-sub module   { $_[0]->_var('app')->_module }
-sub cacheid  { $_[0]->_var('app')->_cacheid }
-sub _cacheid { my $self = shift; $self->_var('app')->_cacheid(@_) }
-sub _opt     { my $self = shift; $self->_var('app')->_opt(@_) }
+sub module   { $_[0]->_app->_module }
+sub cacheid  { $_[0]->_app->_cacheid }
+sub _cacheid { my $self = shift; $self->_app->_cacheid(@_) }
+sub _opt     { my $self = shift; $self->_app->_opt(@_) }
 sub _app     { $_[0]->_var('app') }
-sub _envhash { $_[0]->_var('app')->{ENV} }
+sub _envhash { $_[0]->_app->{ENV} }
 
 # would rather use Object::ID but it uses Hash::FieldHash which
 # (through no fault of its own:
