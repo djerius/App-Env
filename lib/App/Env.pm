@@ -350,7 +350,7 @@ sub _load_envs
 					app => $app,
 					NoLoad => 1,
 					opt => \%app_opt );
-	push @cacheids, $appo->_cacheid;
+	push @cacheids, $appo->cacheid;
 	push @Apps, $appo;
     }
 
@@ -368,9 +368,9 @@ sub _load_envs
 	{
 	    $App = dclone( $EnvCache{$cacheid} );
 
-	    # should really call $self->_cacheid here, but $self
+	    # should really call $self->cacheid here, but $self
 	    # doesn't have an app attached to it yet so that'll fail.
-	    $App->_cacheid( $self->lobject_id );
+	    $App->cacheid( $self->lobject_id );
 	}
 
 	else
@@ -400,7 +400,7 @@ sub _load_envs
 	my @modules;
 	foreach my $app ( @Apps )
 	{
-	    push @modules, $app->_module;
+	    push @modules, $app->module;
 
             # embrace new merged environment
             %ENV = %{$app->load};
@@ -434,9 +434,9 @@ sub _var {
     return ${$self}->{$var};
 }
 
-sub module   { $_[0]->_app->_module }
-sub cacheid  { $_[0]->_app->_cacheid }
-sub _cacheid { my $self = shift; $self->_app->_cacheid(@_) }
+sub module   { $_[0]->_app->module }
+sub cacheid  { $_[0]->_app->cacheid }
+sub _cacheid { my $self = shift; $self->app->cacheid(@_) }
 sub _opt     { my $self = shift; $self->_app->_opt(@_) }
 sub _app     { $_[0]->_var('app') }
 sub _envhash { $_[0]->_app->{ENV} }
@@ -961,7 +961,7 @@ sub load {
     # only load if we haven't before
     return $self->{ENV} if exists $self->{ENV};
 
-    my $module = $self->{module};
+    my $module = $self->module;
 
     my $envs;
     my $fenvs = $module->can('envs' );
@@ -990,7 +990,7 @@ sub load {
 sub cache {
     my ( $self ) = @_;
 
-    $App::Env::EnvCache{$self->{cacheid}} = $self;
+    $App::Env::EnvCache{$self->cacheid} = $self;
 }
 
 #-------------------------------------------------------
@@ -998,7 +998,7 @@ sub cache {
 sub uncache {
     my ( $self ) = @_;
 
-    my $cacheid = $self->{cacheid};
+    my $cacheid = $self->cacheid;
 
     delete $App::Env::EnvCache{$cacheid}
       if exists $App::Env::EnvCache{$cacheid}
@@ -1008,8 +1008,8 @@ sub uncache {
 #-------------------------------------------------------
 
 sub _opt     { @_ > 1 ? $_[0]->{opt}     = $_[1] : $_[0]->{opt} };
-sub _cacheid { @_ > 1 ? $_[0]->{cacheid} = $_[1] : $_[0]->{cacheid} };
-sub _module  { $_[0]->{module} };
+sub cacheid { @_ > 1 ? $_[0]->{cacheid} = $_[1] : $_[0]->{cacheid} };
+sub module  { $_[0]->{module} };
 
 
 #-------------------------------------------------------
