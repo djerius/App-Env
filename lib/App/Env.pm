@@ -930,7 +930,7 @@ sub mk_cacheid
 	if ( keys %uniq )
 	{
 	    local $Storable::canonical = 1;
-	    my $digest = freeze( \%uniq );
+	    $digest = freeze( \%uniq );
 
 	    # use whatever digest aglorithm we can find.  if none is
 	    # found, default to the frozen representation of the
