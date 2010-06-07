@@ -1,4 +1,14 @@
-2010-06-07 17:14 -0400  djerius  <djerius@cfa.harvard.edu>  (45c4eaef5b19 [tip])
+2010-06-07 17:19 -0400  djerius  <djerius@cfa.harvard.edu>  (deba6d724737 [tip])
+
+	* t/temp.t:
+	fix test count
+
+2010-06-07 17:15 -0400  djerius  <djerius@cfa.harvard.edu>  (538d00154e1b)
+
+	* ChangeLog, Changes, lib/App/Env.pm:
+	update logs and version for release
+
+2010-06-07 17:14 -0400  djerius  <djerius@cfa.harvard.edu>  (45c4eaef5b19)
 
 	* lib/App/Env.pm, t/temp.t:
 	pass SysFatal option to Temp environments
