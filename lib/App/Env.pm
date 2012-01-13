@@ -824,9 +824,18 @@ sub qexec
 
     require IPC::System::Simple;
 
-    my $res = eval { IPC::System::Simple::capture( @_); };
+    my ( @res, $res );
 
-    $@ ? ( $self->_opt->{SysFatal} ? die($@) : return ) : return $res;
+    if ( wantarray ) {  @res = eval { IPC::System::Simple::capture( @_ ) } }
+    else             {  $res = eval { IPC::System::Simple::capture( @_ ) } }
+
+    if ( $@ ) {
+
+	die($@) if $self->_opt->{SysFatal};
+	return;
+    }
+
+    return wantarray ? @res : $res;
 }
 
 #-------------------------------------------------------
