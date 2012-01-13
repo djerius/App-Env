@@ -25,6 +25,8 @@ requires 'Capture::Tiny' => 0.09;
 
 install_script 'bin/appexec';
 
+author_tests( 'xt' );
+
 auto_install;
 
 WriteAll;
