@@ -9,3 +9,4 @@ t/.*.stdout
 t/.*.stderr
 blibdirs
 .gz$
+MYMETA.*

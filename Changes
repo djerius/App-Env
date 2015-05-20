@@ -1,108 +1,138 @@
 Revision history for Perl extension App::Env.
 
-0.26  Thu Mar 29 15:47:34 EDT 2012
+0.26  2012-03-29T15:47:34-0400
 
-[ENHANCEMENT]
+  [ENHANCEMENT]
 
-* added App::Env::Null module for "null" (i.e. current) environment
+    * added App::Env::Null module for "null" (i.e. current)
+      environment
+
+0.25  2012-01-13T12:43:22-0400
+
+  [BUG FIX]
+
+    * qexec always acted as if it were being called in a scalar
+      context.
 
 
-0.25  Fri Jan 13 12:43:22 EST 2012
+0.24  2010-06-07T17:14:37-0400
 
-[BUG FIX]
+    * the SysFatal option will now be passed on to cloned environments
+      created with the Temp option.
 
-* qexec always acted as if it were being called in a scalar context.
+0.23  2010-06-07T16:44:26-0400
 
-0.24  Mon Jun  7 17:14:37 EDT 2010
-        - the SysFatal option will now be passed on to cloned environments
-	  created with the Temp option.
+    * capture() is no longer just an alias for qexec; it can now
+      return both stderr and stdout.
 
-0.23  Mon Jun  7 16:44:26 EDT 2010
-        - capture() is no longer just an alias for qexec; it can now return
-	  both stderr and stdout.
+0.22  2010-06-03T12:44:43-0400
 
-0.22  Thu Jun  3 12:44:43 EDT 2010
-        - if CacheID is the string 'AppID', the cache id does not
-	  take into account the contents of the AppOpts hash.
-	- new feature from v. 0.20 (cached environments keyed off of
-          AppOpts hash) now actually works.
+    * if CacheID is the string 'AppID', the cache id does not take
+      into account the contents of the AppOpts hash.
 
-0.21  Wed Jun  2 10:28:42 EDT 2010
-        - no longer uses Object::ID to work around problems with
-	  Hash::FieldHash and older perls.
+    * new feature from v. 0.20 2015-05-20T16:52:10-0400 AppOpts hash)
+      now actually works.
 
-0.20  Fri May 28 12:11:51 EDT 2010
-        - cached environments now keyed off of AppOpts hash
-        - (hopefully) improve Windows compatibility
+0.21  2010-06-02T10:28:42-0400
 
-0.15  Mon Oct 27 14:10:29 EDT 2008
-        - invert logic of shell magic characters; escape those not known to
-	  good.
+    * no longer uses Object::ID to work around problems with
+      Hash::FieldHash and older perls.
 
-0.14  Fri Jul 11 21:17:02 EDT 2008
-        - escape more shell magic characters
+0.20  2010-05-28T12:11:51-0400
 
-0.13  Fri Jul 11 15:59:30 EDT 2008
-        - append semi-colons to appenv's dumpenv output so that shell
-          eval's will actually work
+    * cached environments now keyed off of AppOpts hash
+    * (hopefully) improve Windows compatibility
 
-0.12  Fri Jul 11 13:31:09 EDT 2008
-        - appenv's dumpenv has more output formats. its value is now required.
-	  previously it was optional, which led to its grabbing
-	  the environment name if --env wasn't used. bad form.
+0.15  2008-10-27T14:10:29-0400
 
-0.11  Mon Jun 16 12:27:20 EDT 2008
-        - new setenv() method allows changing an environment.
+    * invert logic of shell magic characters; escape those not known to
+      good.
 
-0.10  Sun Jun 15 23:26:29 EDT 2008
-        - new SysFatal option which will cause system/qexec/capture
-	  object methods to throw an exception on error.  Uses
-	  IPC::System::Simple in this case.
-	- Default option values may now be changed.
+0.14  2008-07-11T21:17:02-0400
 
-0.09  Sat Mar 22 22:44:32 EDT 2008
-        - lowercase aliasing failed if Site was not set.
+    * escape more shell magic characters
 
-0.08  Sat Mar 22 22:03:47 EDT 2008
-        - application module search is no longer sensitive to the case
-          of the application name
+0.13  2008-07-11T15:59:30-0400
 
-0.07  Sat Mar 22 13:19:29 EDT 2008
-        - application environments may now have aliases, which
-	  can preset options
-	- site search was not done exactly according to specs
-	- improved method for searching for environment modules to
-	  distinguish between non-existant modules and compilation errors
-	- env() (and now str() as well) can specify variables to
-	  include in a more flexible fashion.  the returned value is
-	  more flexible (more context dependent) and excruciatingly
-	  documented.
-	- more restrictive str() generation of TERMCAP to make
-	  it easier to exclude variables without needing to specify TERMCAP
- 
+    * append semi-colons to appenv's dumpenv output so that shell
+      eval's will actually work
 
-0.06  Sun Feb  3 14:11:39 EST 2008
-        - fix for multi-app environments
-	- application environments must now be based upon the current
-	  environment
-	- cached application environments are not used in multi-app
-	  environments, nor will individual environments be cached in
-	  the course of creating a multi-app environment
+0.12  2008-07-11T13:31:09-0400
 
-0.05  Thu Jan 17 15:15:38 EST 2008
-        - improve(?) documentation
-	- add appexec program
+    * appenv's dumpenv has more output formats. its value is now required.
+      previously it was optional, which led to its grabbing
+      the environment name if --env wasn't used. bad form.
 
-0.04  Fri Aug 17 17:02:34 EDT 2007
-        - clean up passing of AppOpts to app env module's envs() func
+0.11  2008-06-16T12:27:20-0400
 
-0.03  Fri Aug 17 12:26:32 EDT 2007
-        - remove dependency on Module::Load::Conditional
+    * new setenv() method allows changing an environment.
 
-0.02  Thu Aug 16 17:10:27 EDT 2007
-	- work around lack of weak references in older perls
+0.10  2008-06-15T23:26:29-0400
 
-0.01  Thu Jul 26 17:39:40 2007
-	- original version; created by h2xs 1.23 with options
-		-A -X -n App::Env
+    * new SysFatal option which will cause system/qexec/capture object
+      methods to throw an exception on error.  Uses
+      IPC::System::Simple in this case.
+
+    * Default option values may now be changed.
+
+ 0.09  2008-03-22T22:44:32-0400
+
+    * lowercase aliasing failed if Site was not set.
+
+0.08  2008-03-22T22:03:47-0400
+
+    * application module search is no longer sensitive to the case of
+      the application name
+
+0.07  2008-03-22T13:19:29-0400
+
+    * application environments may now have aliases, which can preset
+      options
+
+    * site search was not done exactly according to specs
+
+    * improved method for searching for environment modules to
+      distinguish between non-existant modules and compilation errors
+
+    * env() (and now str() as well) can specify variables to include
+      in a more flexible fashion.  the returned value is more flexible
+      (more context dependent) and excruciatingly documented.
+
+    * more restrictive str() generation of TERMCAP to make it easier
+      to exclude variables without needing to specify TERMCAP
+
+
+0.06  2008-02-03T14:11:39-0400
+
+    * fix for multi-app environments
+
+    * application environments must now be based upon the current
+      environment
+
+    * cached application environments are not used in multi-app
+      environments, nor will individual environments be cached in the
+      course of creating a multi-app environment
+
+0.05  2008-01-17T15:15:38-0400
+
+    * improve(?) documentation
+
+    * add appexec program
+
+ 0.04  2007-08-17T17:02:34-0400
+
+    * clean up passing of AppOpts to app env module's envs() func
+
+0.03  2007-08-17T12:26:32-0400
+
+    * remove dependency on Module::Load::Conditional
+
+0.02  2007-08-16T17:10:27-0400
+
+    * work around lack of weak references in older perls
+
+0.01  2007-07-26T17:39:40-0400
+
+    * original version; created by h2xs 1.23 2015-05-20T16:52:10-0400
+	    -A -X -n App::Env
 

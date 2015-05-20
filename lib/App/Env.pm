@@ -1,6 +1,6 @@
 # --8<--8<--8<--8<--
 #
-# Copyright (C) 2007-2008 Smithsonian Astrophysical Observatory
+# Copyright (C) 2007-2015 Smithsonian Astrophysical Observatory
 #
 # This file is part of App::Env
 #
@@ -20,6 +20,8 @@
 # -->8-->8-->8-->8--
 
 package App::Env;
+
+use 5.00800;
 
 use strict;
 use warnings;
@@ -1813,7 +1815,7 @@ Diab Jerius, E<lt>djerius@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2008 Smithsonian Astrophysical Observatory
+Copyright 2007-2015 Smithsonian Astrophysical Observatory
 
 This software is released under the GNU General Public License.  You
 may find a copy at
