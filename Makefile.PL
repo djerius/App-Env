@@ -18,6 +18,6 @@ install_script 'bin/appexec';
 
 author_tests( 'xt' );
 
-cpanfile
+cpanfile;
 
 WriteAll;
