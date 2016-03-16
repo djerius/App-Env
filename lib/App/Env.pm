@@ -1536,24 +1536,24 @@ following contexts matches:
 
 =over
 
-=item 0
+=item 1
 
 If called with no arguments (or just an B<Exclude> option,
 as discussed below) return a hashref containing the environment.
 
-=item 1
+=item 2
 
 If called in a scalar context and passed a single variable name
 (which must be a string) return the value for that variable,
 or I<undef> if it is not in the environment.
 
-=item 2
+=item 3
 
 If called in a list context and passed a list of variable names
 (which must be strings) return an array of values for those variables
 (I<undef> for those not in the environment).
 
-=item 3
+=item 4
 
 If called in a scalar context and passed one or more I<match
 specifications>, return a hashref containing the subset
