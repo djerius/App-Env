@@ -92,7 +92,7 @@ BEGIN {
     if ( ! exists $ENV{APP_ENV_SITE} && _existsModule('App::Env::Site') )
     {
         eval { require App::Env::Site };
-        croak( "Error loading App::Env::Site: $@\n" ) if $@;
+        croak( ref $@ ? $@ : "Error loading App::Env::Site: $@\n" ) if $@;
     }
 }
 
@@ -921,7 +921,8 @@ sub new
 
 	( $self->{module}, my $app_opts )
           = eval { App::Env::_require_module( $self->{app}, $self->{opt}{Site} ) };
-        croak( "error loading application environment module for $self->{app}:\n", $@ )
+
+        croak( ref $@ ? $@ : "error loading application environment module for $self->{app}:\n", $@ )
           if $@;
 
         die( "application environment module for $self->{app} does not exist\n" )
@@ -1015,16 +1016,14 @@ sub load {
 
     my $envs;
     my $fenvs = $module->can('envs' );
-    if ( $fenvs )
-    {
-	$envs = eval { $fenvs->( $self->{opt}{AppOpts} ) };
-	croak( "error in ${module}::envs: $@\n" )
-	  if $@;
-    }
-    else
-    {
-        croak( "$module does not have an 'envs' function\n" );
-    }
+
+    croak( "$module does not have an 'envs' function\n" )
+      unless $fenvs;
+
+    $envs = eval { $fenvs->( $self->{opt}{AppOpts} ) };
+
+    croak( ref $@ ? $@ : "error in ${module}::envs: $@\n" )
+      if $@;
 
     # make copy of environment
     $self->{ENV} = {%{$envs}};
