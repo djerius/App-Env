@@ -1,5 +1,12 @@
 Revision history for Perl extension App::Env.
 
+0.29  2016-03-16T13:37:06-0400
+
+  [BUG FIX]
+
+    * exceptions caught by App::Env were stringified when rethrown,
+      breaking calling code which might expect an exception object.
+
 0.28  2015-05-21T10:55:07-0400
 
   [BUILD]
