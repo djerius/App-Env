@@ -1,5 +1,15 @@
 Revision history for Perl extension App::Env.
 
+0.30  2016-07-06T17:11:43-0400
+
+  [BUG FIX]
+
+    * bash exports shell functions via special environment variables
+      with nominally illegal names. when dumping the environment for
+      bash, appexec will translate those variables into function
+      definitions instead of simply passing along the bogus variable
+      names, which causes bash to barf.
+
 0.29  2016-03-16T13:37:06-0400
 
   [BUG FIX]

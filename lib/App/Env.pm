@@ -37,7 +37,7 @@ use Params::Validate qw(:all);
 use Module::Find qw( );
 
 
-our $VERSION = '0.29';
+our $VERSION = '0.30';
 
 use overload
   '%{}' => '_envhash',
