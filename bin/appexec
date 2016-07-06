@@ -64,8 +64,12 @@ sub main
 	    {
 		# if bash is trying to export a module, help it
 		if ( $env =~ /^BASH_FUNC_(.*?)\(\)$/ ) {
-		    print "$1 $ENV{$env}\n";
-		    print "export -f $1\n";
+
+		    my $func = $1;
+		    $val = $ENV{$env}; 		    # use the unquoted version
+		    $val =~ s/\n/;\n/g;             # add a semi-colon after every line
+		    print "$func $val;\n";
+		    print "export -f $func;\n";
 		}
 		else {
 		    print "export $env=$val;\n";
