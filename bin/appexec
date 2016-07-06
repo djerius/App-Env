@@ -56,9 +56,20 @@ sub main
             $val = App::Env::_shell_escape( $val )
               if $val ne '' && $opt{dumpenv} ne 'unquoted';
 
-	    if ( $opt{dumpenv} =~ /^(?:bash|ksh)$/ )
+	    if ( $opt{dumpenv} eq 'ksh' )
 	    {
 		print "export $env=$val;\n";
+	    }
+	    elsif ( $opt{dumpenv} eq 'bash' )
+	    {
+		# if bash is trying to export a module, help it
+		if ( $env =~ /^BASH_FUNC_(.*?)\(\)$/ ) {
+		    print "$1 $ENV{$env}\n";
+		    print "export -f $1\n";
+		}
+		else {
+		    print "export $env=$val;\n";
+		}
 	    }
 	    elsif ( $opt{dumpenv} =~ /^(?:csh|tcsh)$/ )
 	    {
