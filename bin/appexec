@@ -37,6 +37,9 @@ sub main
     do { print "$prog $VERSION\n"; return }
       if $opt{version};
 
+    die "please specify an environment\n"
+      unless defined $opt{env};
+
     eval { App::Env::import( $opt{env},
                            {
                             AppOpts => $opt{appopts},
