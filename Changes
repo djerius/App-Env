@@ -1,5 +1,12 @@
 Revision history for Perl extension App::Env.
 
+0.31  2016-07-06T17:26:56-0400
+
+  [BUG FIX]
+
+    * bash shell export support in version 0.30 wasn't complete;
+      it didn't produce output which could be eval'ed.
+
 0.30  2016-07-06T17:11:43-0400
 
   [BUG FIX]
