@@ -56,11 +56,11 @@ sub main
             $val = App::Env::_shell_escape( $val )
               if $val ne '' && $opt{dumpenv} ne 'unquoted';
 
-	    if ( $opt{dumpenv} =~ /^(bash|ksh)$/ )
+	    if ( $opt{dumpenv} =~ /^(?:bash|ksh)$/ )
 	    {
 		print "export $env=$val;\n";
 	    }
-	    elsif ( $opt{dumpenv} =~ /^(csh|tcsh)$/ )
+	    elsif ( $opt{dumpenv} =~ /^(?:csh|tcsh)$/ )
 	    {
 		print "setenv $env $val;\n";
 	    }
