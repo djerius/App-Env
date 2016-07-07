@@ -1,5 +1,12 @@
 Revision history for Perl extension App::Env.
 
+0.32  2016-07-07T12:50:00-0400
+
+  [BUG FIX]
+
+    * avoid warnings from appexec when environment variables have
+      no defined value
+
 0.31  2016-07-06T17:26:56-0400
 
   [BUG FIX]
