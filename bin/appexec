@@ -53,6 +53,8 @@ sub main
     {
 	while( my ($env, $val ) = each %ENV )
 	{
+	    $val = '' unless defined $val;
+
             $val = App::Env::_shell_escape( $val )
               if $val ne '' && $opt{dumpenv} ne 'unquoted';
 
