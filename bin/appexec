@@ -40,6 +40,10 @@ sub main
     die "please specify an environment\n"
       unless defined $opt{env};
 
+    if ( $opt{clear} ) {
+	%ENV = map { $_ => $ENV{$_} } grep { exists $ENV{$_} }qw[ HOME LOGNAME SHELL ];
+    }
+
     my @envs = split( ',', $opt{env} );
 
     # if more than one environment, sort out possible environment specific appopts
@@ -137,6 +141,7 @@ sub parse_args
     %opt =
       (
        appopts  => {},
+       clear    => 0,
        verbose  => 0,
        version	=> 0,
        usage	=> 0,
@@ -153,6 +158,7 @@ sub parse_args
                         appopts|o=s%
 			usage
 			help
+			clear|c
 			dumpenv|d=s
                         site=s
 			verbose
@@ -227,6 +233,16 @@ or as the first non-option argument.
 The following options are available:
 
 =over
+
+=item C<--clear> | C<-c>
+
+Clear out the environment prior to loading the specified ones.  This is equivalent
+to deleting all environment variables except for
+
+  HOME
+  SHELL
+  LOGNAME
+
 
 =item C<--env>=I<name>
 
