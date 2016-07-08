@@ -11,6 +11,7 @@ requires 'Env::Path';
 requires 'File::Spec::Functions';
 requires 'IPC::System::Simple';
 requires 'Capture::Tiny' => 0.09;
+requires 'Scalar::Util';
 
 on 'test' => sub {
     requires 'Test::More';

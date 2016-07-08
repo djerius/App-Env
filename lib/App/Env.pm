@@ -26,6 +26,7 @@ use 5.00800;
 use strict;
 use warnings;
 
+use Scalar::Util qw[ blessed ];
 use Storable qw[ dclone ];
 
 use Carp;
@@ -152,7 +153,7 @@ sub import {
     my $this = $_[0];
 
     # object method?
-    if ( ref $this && $this->isa(__PACKAGE__) )
+    if ( blessed $this && $this->isa(__PACKAGE__) )
     {
 	my $self = shift;
 	die( __PACKAGE__, "->import: too many arguments\n" )
