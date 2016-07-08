@@ -267,7 +267,7 @@ an environment name followed by a colon, e.g.:
 
 Specify a site. (See B<App::Env> for more information.)
 
-=item B<--dumpenv>=I<fmt> | B<-d> I<fmt>
+=item C<--dumpenv>=I<fmt> | B<-d> I<fmt>
 
 Output the environmental variables to the standard output stream.  The
 output format is determined by the B<--dumpfmt> option.
@@ -282,15 +282,15 @@ The possible formats are:
   unquoted
 
 
-=item B<--verbose>
+=item C<--verbose>
 
 Print the command to be run to the standard output stream before running it.
 
-=item B<--help>
+=item C<--help>
 
 Print a short help summary and exit.
 
-=item B<--usage>
+=item C<--usage>
 
 Print full documentation and exit.
 
