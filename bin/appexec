@@ -40,9 +40,36 @@ sub main
     die "please specify an environment\n"
       unless defined $opt{env};
 
-    eval { App::Env::import( $opt{env},
+    my @envs = split( ',', $opt{env} );
+
+    # if more than one environment, sort out possible environment specific appopts
+    my %appopts;
+    @appopts{ @envs } = map { {} } 1..@envs;
+
+    if ( @envs > 1 ) {
+
+
+	while( my ( $k, $value ) = each %{ $opt{appopts} } ) {
+
+	    my ( $env, $key ) = $k =~ /^([^:]*):(.*)$/;
+
+	    die( "appopts ($key) not specific to one of the specified environments" )
+	      unless exists $appopts{$env};
+
+	    $appopts{$env}{$key} = $value;
+	}
+
+    }
+
+    else {
+
+	$appopts{$envs[0]} = $opt{appopts};
+
+    }
+
+
+    eval { App::Env::import( ( map { [ $_ => { AppOpts => $appopts{$_} } ] } @envs ),
                            {
-                            AppOpts => $opt{appopts},
                             ( defined $opt{site} ? (Site => $opt{site}) : () ),
                            } );
        };
@@ -201,18 +228,24 @@ The following options are available:
 
 =over
 
-=item B<--env>=I<name>
+=item C<--env>=I<name>
 
-The name of the environment (or I<application> in B<App::Env> terminology)
-in which to run the program.  The Perl module B<App::Env::name> must exist.
+A comma separated list of environments (or I<applications> in
+B<App::Env> terminology) in which to run the program.  The Perl modules
+definining the environments (e.g. B<App::Env::<environment name>> ) must exist.
 
-If this option is not specified, the first non-option argument should be
-the environment name
+If this option is not specified, the first non-option argument should
+contain the environment name(s).
 
-=item B<--appopts> I<key>=I<value> or B<-o> I<key>=I<value>
+=item C<--appopts> I<key>=I<value> | C<-o> I<key>=I<value>
 
 Specify a option key and value to be passed via B<AppOpts> to the
 B<App::Env> application module.  This option may be specified multiple times.
+
+If multiple environments will be loaded, then each key must be prefixed with
+an environment name followed by a colon, e.g.:
+
+  appexec --env env1,env2 -o env1:opt1=val1 -o env2:opt2=val2
 
 =item B<--site>=I<site>
 
