@@ -204,7 +204,7 @@ The following options are available:
 =item B<--env>=I<name>
 
 The name of the environment (or I<application> in B<App::Env> terminology)
-in which to run the program.  The Perl module B<App::Env::name> must be exist.
+in which to run the program.  The Perl module B<App::Env::name> must exist.
 
 If this option is not specified, the first non-option argument should be
 the environment name
