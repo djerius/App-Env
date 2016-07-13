@@ -16,6 +16,9 @@ resources (
 
 install_script 'bin/appexec';
 
+readme_from;
+readme_from '', { format => 'md' };;
+
 author_tests( 'xt' );
 
 cpanfile;

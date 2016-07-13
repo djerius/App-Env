@@ -7,7 +7,6 @@ requires 'Pod::Usage';
 requires 'File::Temp';
 requires 'File::Basename';
 requires 'Module::Find';
-requires 'Env::Path';
 requires 'File::Spec::Functions';
 requires 'IPC::System::Simple';
 requires 'Capture::Tiny' => 0.09;
@@ -16,6 +15,7 @@ requires 'Scalar::Util';
 on 'test' => sub {
     requires 'Test::More';
     requires 'Test::Exception';
+    requires 'Env::Path';
 };
 
 on develop => sub {
@@ -25,6 +25,7 @@ on develop => sub {
     requires 'Module::Install::AuthorTests';
     requires 'Module::Install::AutoLicense';
     requires 'Module::Install::CPANfile';
+    requires 'Module::Install::ReadmeFromPod';
 
     requires 'Test::NoBreakpoints';
     requires 'Test::Pod';
