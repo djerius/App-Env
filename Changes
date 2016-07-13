@@ -1,4 +1,19 @@
 Revision history for Perl extension App::Env.
+0.33  2016-07-13T12:16:55-0400
+
+  [BUG FIX]
+
+    * improper method call check in import()
+
+  [ENHANCEMENT]
+
+    * appexec
+
+        * new --clear option to clear the current environment prior to
+	  loading a new environment
+
+        * multiple environments may be loaded
+
 
 0.32  2016-07-07T12:50:00-0400
 

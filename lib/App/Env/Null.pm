@@ -3,6 +3,8 @@ package App::Env::Null;
 use strict;
 use warnings;
 
+our $VERSION = '0.33';
+
 =pod
 
 =begin making_pod_coverage_shut_up

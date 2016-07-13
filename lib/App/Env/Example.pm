@@ -3,6 +3,8 @@ package App::Env::Example;
 use strict;
 use warnings;
 
+our $VERSION = '0.33';
+
 # This example uses Shell::GetEnv to illustrate how to source a shell
 # script which defines the environment for an application.  Other
 # similar modules are Shell::Source and Shell::EnvImporter.
