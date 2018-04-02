@@ -839,15 +839,23 @@ sub capture
 
     my ( $stdout, $stderr );
 
+    # Capture::Tiny::capture is prototyped as (&;@). App::Env
+    # lazy-loads Capture::Tiny and thus nominally avoids the prototype
+    # check. However, if Capture::Tiny is explicitly loaded prior to
+    # App::Env, the prototype check will be performed when App::Env is
+    # compiled.  In that case the following calls to capture are
+    # singled out, as while the calls are correct, the prototype
+    # requires an explicit block or sub{}.  So, explicitly
+    # ignore prototypes.
+
     if ( wantarray )
     {
-
-        ( $stdout, $stderr ) = eval { Capture::Tiny::capture( $sub ) };
+        ( $stdout, $stderr ) = eval { &Capture::Tiny::capture( $sub ) };
 
     }
     else
     {
-        $stdout = eval { Capture::Tiny::capture( $sub ) };
+        $stdout = eval { &Capture::Tiny::capture( $sub ) };
     }
 
     die( $@) if $@;
