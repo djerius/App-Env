@@ -3,6 +3,9 @@
 use strict;
 use warnings;
 
+# ABSTRACT: execute a command under a specified environment
+# PODNAME: appexec
+
 use Getopt::Long qw( :config require_order );
 
 use File::Basename;
@@ -41,7 +44,7 @@ sub main
       unless defined $opt{env};
 
     if ( $opt{clear} ) {
-	%ENV = map { $_ => $ENV{$_} } grep { exists $ENV{$_} }qw[ HOME LOGNAME SHELL ];
+        %ENV = map { $_ => $ENV{$_} } grep { exists $ENV{$_} }qw[ HOME LOGNAME SHELL ];
     }
 
     my @envs = split( ',', $opt{env} );
@@ -53,21 +56,21 @@ sub main
     if ( @envs > 1 ) {
 
 
-	while( my ( $k, $value ) = each %{ $opt{appopts} } ) {
+        while( my ( $k, $value ) = each %{ $opt{appopts} } ) {
 
-	    my ( $env, $key ) = $k =~ /^([^:]*):(.*)$/;
+            my ( $env, $key ) = $k =~ /^([^:]*):(.*)$/;
 
-	    die( "appopts ($key) not specific to one of the specified environments" )
-	      unless exists $appopts{$env};
+            die( "appopts ($key) not specific to one of the specified environments" )
+              unless exists $appopts{$env};
 
-	    $appopts{$env}{$key} = $value;
-	}
+            $appopts{$env}{$key} = $value;
+        }
 
     }
 
     else {
 
-	$appopts{$envs[0]} = $opt{appopts};
+        $appopts{$envs[0]} = $opt{appopts};
 
     }
 
@@ -82,41 +85,41 @@ sub main
 
     if ( $opt{dumpenv} )
     {
-	while( my ($env, $val ) = each %ENV )
-	{
-	    $val = '' unless defined $val;
+        while( my ($env, $val ) = each %ENV )
+        {
+            $val = '' unless defined $val;
 
             $val = App::Env::_shell_escape( $val )
               if $val ne '' && $opt{dumpenv} ne 'unquoted';
 
-	    if ( $opt{dumpenv} eq 'ksh' )
-	    {
-		print "export $env=$val;\n";
-	    }
-	    elsif ( $opt{dumpenv} eq 'bash' )
-	    {
-		# if bash is trying to export a module, help it
-		if ( $env =~ /^BASH_FUNC_(.*?)\(\)$/ ) {
+            if ( $opt{dumpenv} eq 'ksh' )
+            {
+                print "export $env=$val;\n";
+            }
+            elsif ( $opt{dumpenv} eq 'bash' )
+            {
+                # if bash is trying to export a module, help it
+                if ( $env =~ /^BASH_FUNC_(.*?)\(\)$/ ) {
 
-		    my $func = $1;
-		    $val = $ENV{$env}; 		    # use the unquoted version
-		    $val =~ s/\n/;\n/g;             # add a semi-colon after every line
-		    print "$func $val;\n";
-		    print "export -f $func;\n";
-		}
-		else {
-		    print "export $env=$val;\n";
-		}
-	    }
-	    elsif ( $opt{dumpenv} =~ /^(?:csh|tcsh)$/ )
-	    {
-		print "setenv $env $val;\n";
-	    }
-	    else
-	    {
-		print "$env=$val\n";
-	    }
-	}
+                    my $func = $1;
+                    $val = $ENV{$env};              # use the unquoted version
+                    $val =~ s/\n/;\n/g;             # add a semi-colon after every line
+                    print "$func $val;\n";
+                    print "export -f $func;\n";
+                }
+                else {
+                    print "export $env=$val;\n";
+                }
+            }
+            elsif ( $opt{dumpenv} =~ /^(?:csh|tcsh)$/ )
+            {
+                print "setenv $env $val;\n";
+            }
+            else
+            {
+                print "$env=$val\n";
+            }
+        }
 
     }
 
@@ -125,13 +128,13 @@ sub main
 
     if ( @ARGV )
     {
-	die( "$ARGV[0] does not exist, is not executable, or is not in PATH\n" )
-	  unless
+        die( "$ARGV[0] does not exist, is not executable, or is not in PATH\n" )
+          unless
             ( file_name_is_absolute($ARGV[0]) && -e $ARGV[0] )
               || Env::Path->PATH->Whence($ARGV[0]);
 
-	exec @ARGV
-	  or die( "can't exec $ARGV[0]: not in path?\n" );
+        exec @ARGV
+          or die( "can't exec $ARGV[0]: not in path?\n" );
     }
 }
 
@@ -143,28 +146,28 @@ sub parse_args
        appopts  => {},
        clear    => 0,
        verbose  => 0,
-       version	=> 0,
-       usage	=> 0,
-       help	=> 0,
+       version  => 0,
+       usage    => 0,
+       help     => 0,
       );
 
     eval {
-	local $SIG{ __WARN__ } = sub { die $_[0] };
+        local $SIG{ __WARN__ } = sub { die $_[0] };
 
 
-	GetOptions ( \%opt,
-		     qw/
-			env=s
+        GetOptions ( \%opt,
+                     qw/
+                        env=s
                         appopts|o=s%
-			usage
-			help
-			clear|c
-			dumpenv|d=s
+                        usage
+                        help
+                        clear|c
+                        dumpenv|d=s
                         site=s
-			verbose
-			version
-			/,
-		   );
+                        verbose
+                        version
+                        /,
+                   );
     };
 
     die $@ if $@;
@@ -179,9 +182,9 @@ sub parse_args
     # ensure that the dumpenv option is correct
     if ( exists $opt{dumpenv} )
     {
-	die( "unsupported dumpenv format: $opt{dumpenv}\n" )
-	  unless grep { $opt{dumpenv} eq $_ }
-	    qw( ksh bash raw unquoted tcsh csh );
+        die( "unsupported dumpenv format: $opt{dumpenv}\n" )
+          unless grep { $opt{dumpenv} eq $_ }
+            qw( ksh bash raw unquoted tcsh csh );
     }
 
     # if --env wasn't specified, the first argument is the application
@@ -199,15 +202,11 @@ sub help
     Pod::Usage::pod2usage ( { -exitval => 0, -verbose => $verbose } );
 }
 
-
+# COPYRIGHT
 
 __END__
 
 =pod
-
-=head1 NAME
-
-appexec - execute a command under a specified environment
 
 =head1 SYNOPSIS
 
@@ -248,7 +247,7 @@ to deleting all environment variables except for
 
 A comma separated list of environments (or I<applications> in
 B<App::Env> terminology) in which to run the program.  The Perl modules
-definining the environments (e.g. B<App::Env::<environment name>> ) must exist.
+defining the environments (e.g. B<App::Env::<environment name>> ) must exist.
 
 If this option is not specified, the first non-option argument should
 contain the environment name(s).
@@ -269,8 +268,8 @@ Specify a site. (See B<App::Env> for more information.)
 
 =item C<--dumpenv>=I<fmt> | B<-d> I<fmt>
 
-Output the environmental variables to the standard output stream.  The
-output format is determined by the B<--dumpfmt> option.
+Output the environmental variables to the standard output stream with the
+specified format.
 
 The possible formats are:
 
@@ -316,20 +315,3 @@ Run the B<dmlist> tool from the CIAO version 3.4 application suite:
   appexec -o version=3.4 CIAO dmlist
 
 =back
-
-
-=head1 VERSION
-
-This documents version 1.0.0 of B<appexec>.
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright the Smithsonian Astrophysical Observatory
-and is released under the GNU General Public License.  You may find a
-copy at L<http://www.fsf.org/copyleft/gpl.html>.
-
-
-=head1 AUTHOR
-
-Diab Jerius E<lt>djerius@cfa.harvard.eduE<gt>
-

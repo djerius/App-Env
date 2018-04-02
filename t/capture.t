@@ -34,7 +34,7 @@ my $script = catfile( qw [ t capture.pl ] );
     my $app1 = App::Env->new( 'App1', { Cache => 0, SysFatal => 1 } );
 
     eval {
-	my ($stdout, $stderr ) = $app1->capture( $^X,  $script, 'exit' );
+        my ($stdout, $stderr ) = $app1->capture( $^X,  $script, 'exit' );
     };
     isnt( $@, '', 'unsuccessful system call: SysFatal' );
 }

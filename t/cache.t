@@ -109,14 +109,14 @@ App::Env::Site1::App2::reset();
     # merge.  should pull in new App1
     $obj1 = App::Env->new( 'App1', 'App2' );
     ok( $obj1->env('Site1_App1') == 3 &&
-	$obj1->env('Site1_App2') == 1, "obj merge: 1" );
+        $obj1->env('Site1_App2') == 1, "obj merge: 1" );
 
     # merge.  force reload of all apps
     $obj2 = App::Env->new( 'App1', 'App2', { Force => 1 } );
     ok( $obj2->env('Site1_App1') == 4 &&
-	$obj2->env('Site1_App2') == 2, "obj merge: 2" );
+        $obj2->env('Site1_App2') == 2, "obj merge: 2" );
 
     # but obj1 should be the same
     ok( $obj1->env('Site1_App1') == 3 &&
-	$obj1->env('Site1_App2') == 1, "obj merge: 1 check" );
+        $obj1->env('Site1_App2') == 1, "obj merge: 1 check" );
 }

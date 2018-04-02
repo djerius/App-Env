@@ -53,8 +53,8 @@ test_exclude( 'Site1_App1', 'exclude: scalar' );
 test_exclude( [ 'Site1_App1' ], 'exclude: array' );
 
 test_exclude( sub { my( $var, $val ) = @_;
-		    return $var eq 'Site1_App1' ? 1 : 0 },
-	      'exclude: code' );
+                    return $var eq 'Site1_App1' ? 1 : 0 },
+              'exclude: code' );
 
 
 # test for TERMCAP handling

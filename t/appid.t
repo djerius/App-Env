@@ -14,7 +14,7 @@ is( $obj1->env('Site1_App1'), 1, "method 1, AppOpts sig" );
 
 # now get App1 again, with AppID signature
 my $obj2 = App::Env->new( 'App1', { CacheID => 'AppID', 
-				    AppOpts => \%AppOpts } );
+                                    AppOpts => \%AppOpts } );
 is( $obj2->env('Site1_App1'), 2, "method 2, AppID sig" );
 is( $obj2->cacheid, 'App::Env::Site1::App1', "method 2, AppID cache id" );
 

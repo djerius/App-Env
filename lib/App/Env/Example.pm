@@ -1,5 +1,7 @@
 package App::Env::Example;
 
+# ABSTRACT: example application environment module for App::Env.
+
 use strict;
 use warnings;
 
@@ -18,17 +20,15 @@ sub envs
 
     # source the shell script and return the changed environment
     return Shell::GetEnv->new( 'tcsh',
-			       'source /usr/local/mypkg/setup.csh'
-			     )->envs;
+                               'source /usr/local/mypkg/setup.csh'
+                             )->envs;
 }
 
 1;
 
+# COPYRIGHT
+
 __END__
-
-=head1 NAME
-
-App::Env::Example - example application environment module for App::Env.
 
 =head1 DESCRIPTION
 

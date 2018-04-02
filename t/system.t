@@ -31,7 +31,7 @@ my $badscript = catfile( qw [ t script_no_exist ] );
     my $tmp = File::Temp->new;
 
     eval {
-	$app1->system( $^X,  $script, $tmp->filename );
+        $app1->system( $^X,  $script, $tmp->filename );
     };
 
     is( $@, '', 'successful system call: SysFatal' );
@@ -55,7 +55,7 @@ my $badscript = catfile( qw [ t script_no_exist ] );
     my $tmp = File::Temp->new;
 
     eval {
-	$app1->system( $^X,  $badscript, $tmp->filename );
+        $app1->system( $^X,  $badscript, $tmp->filename );
     };
 
     isnt( $@, '', 'unsuccessful system call: SysFatal' );
