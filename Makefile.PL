@@ -39,19 +39,22 @@ my %WriteMakefileArgs = (
     "warnings" => 0
   },
   "TEST_REQUIRES" => {
+    "Capture::Tiny" => 0,
+    "Env::Path" => 0,
     "ExtUtils::MakeMaker" => 0,
     "File::Spec" => 0,
+    "File::Spec::Functions" => 0,
     "File::Temp" => 0,
     "IO::Handle" => 0,
     "IPC::Open3" => 0,
+    "Test2::API" => 0,
     "Test2::V0" => 0,
-    "Test::Fatal" => 0,
-    "Test::More" => 0,
-    "lib" => 0
+    "Test::Lib" => 0,
+    "Test::More" => 0
   },
   "VERSION" => "0.33",
   "test" => {
-    "TESTS" => "t/*.t"
+    "TESTS" => "t/*.t t/regressions/*.t"
   }
 );
 
@@ -76,10 +79,10 @@ my %FallbackPrereqs = (
   "Scalar::Util" => 0,
   "Shell::GetEnv" => 0,
   "Storable" => 0,
+  "Test2::API" => 0,
   "Test2::V0" => 0,
-  "Test::Fatal" => 0,
+  "Test::Lib" => 0,
   "Test::More" => 0,
-  "lib" => 0,
   "overload" => 0,
   "strict" => 0,
   "warnings" => 0

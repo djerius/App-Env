@@ -18,15 +18,18 @@ requires "strict" => "0";
 requires "warnings" => "0";
 
 on 'test' => sub {
+  requires "Capture::Tiny" => "0";
+  requires "Env::Path" => "0";
   requires "ExtUtils::MakeMaker" => "0";
   requires "File::Spec" => "0";
+  requires "File::Spec::Functions" => "0";
   requires "File::Temp" => "0";
   requires "IO::Handle" => "0";
   requires "IPC::Open3" => "0";
+  requires "Test2::API" => "0";
   requires "Test2::V0" => "0";
-  requires "Test::Fatal" => "0";
+  requires "Test::Lib" => "0";
   requires "Test::More" => "0";
-  requires "lib" => "0";
 };
 
 on 'test' => sub {

@@ -1,11 +1,11 @@
 #!perl
 
-use Test::More tests => 12;
+use Test2::V0;
+use Test::Lib;
 
 use strict;
 use warnings;
 
-use lib 't';
 use File::Temp;
 use File::Spec::Functions qw[ catfile ];
 
@@ -100,3 +100,5 @@ my $badscript = catfile( qw [ t script_no_exist ] );
     is( $output, undef, 'qexec: bad script' );
     App::Env::Site1::App1::reset();
 }
+
+done_testing;

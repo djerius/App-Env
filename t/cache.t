@@ -1,8 +1,9 @@
-use Test::More tests => 24;
+#! perl
 
-use lib 't';
+use Test2::V0;
+use Test::Lib;
 
-BEGIN { use_ok('App::Env') };
+use App::Env;
 
 #############################################################
 
@@ -120,3 +121,5 @@ App::Env::Site1::App2::reset();
     ok( $obj1->env('Site1_App1') == 3 &&
         $obj1->env('Site1_App2') == 1, "obj merge: 1 check" );
 }
+
+done_testing;
