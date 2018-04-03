@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use 5.008000;
+
 
 use ExtUtils::MakeMaker;
 
@@ -17,11 +17,9 @@ my %WriteMakefileArgs = (
     "bin/appexec"
   ],
   "LICENSE" => "gpl",
-  "MIN_PERL_VERSION" => "5.008000",
   "NAME" => "App::Env",
   "PREREQ_PM" => {
     "Capture::Tiny" => 0,
-    "Carp" => 0,
     "Digest" => 0,
     "Env::Path" => 0,
     "File::Basename" => 0,
@@ -33,10 +31,7 @@ my %WriteMakefileArgs = (
     "Pod::Usage" => 0,
     "Scalar::Util" => 0,
     "Shell::GetEnv" => 0,
-    "Storable" => 0,
-    "overload" => 0,
-    "strict" => 0,
-    "warnings" => 0
+    "Storable" => 0
   },
   "TEST_REQUIRES" => {
     "Capture::Tiny" => 0,
@@ -52,7 +47,7 @@ my %WriteMakefileArgs = (
     "Test::Lib" => 0,
     "Test::More" => 0
   },
-  "VERSION" => "0.33",
+  "VERSION" => "0.34",
   "test" => {
     "TESTS" => "t/*.t t/regressions/*.t"
   }
@@ -61,7 +56,6 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "Capture::Tiny" => 0,
-  "Carp" => 0,
   "Digest" => 0,
   "Env::Path" => 0,
   "ExtUtils::MakeMaker" => 0,
@@ -82,10 +76,7 @@ my %FallbackPrereqs = (
   "Test2::API" => 0,
   "Test2::V0" => 0,
   "Test::Lib" => 0,
-  "Test::More" => 0,
-  "overload" => 0,
-  "strict" => 0,
-  "warnings" => 0
+  "Test::More" => 0
 );
 
 
