@@ -477,7 +477,7 @@ sub cache
 sub uncache
 {
     my %opt = Params::Validate::validate( @_, {
-                             All     => { default => 0,     type => Params::Validate::SCALAR },
+                             All     => { default => undef, type => Params::Validate::SCALAR },
                              App     => { default => undef, type => Params::Validate::SCALAR },
                              Site    => { default => undef, type => Params::Validate::SCALAR },
                              CacheID => { default => undef, type => Params::Validate::SCALAR },
@@ -498,7 +498,7 @@ sub uncache
         Carp::croak( "can't specify CacheID option with other options\n" )
           if grep { defined $_ } values %opt;
 
-        delete $EnvCache{$opt{CacheID}};
+        delete $EnvCache{$cacheid};
     }
     else
     {
