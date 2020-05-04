@@ -8,8 +8,8 @@ use File::Spec::Functions qw[ catfile ];
 
 use App::Env;
 
-my $script = catfile( qw [ t appexec.pl ] );
-my $badscript = catfile( qw [ t script_no_exist ] );
+my $script = catfile( qw [ t bin appexec.pl ] );
+my $badscript = catfile( qw [ t bin script_no_exist ] );
 
 {
     my $app1 = App::Env->new( 'App1', { Cache => 0 } );

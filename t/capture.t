@@ -8,7 +8,7 @@ use File::Spec::Functions qw[ catfile ];
 
 use App::Env;
 
-my $script = catfile( qw [ t capture.pl ] );
+my $script = catfile( qw [ t bin capture.pl ] );
 
 {
     my $app1 = App::Env->new( 'App1', { Cache => 0 } );
