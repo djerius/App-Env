@@ -3,9 +3,6 @@
 use Test2::V0;
 use Test::Lib;
 
-use strict;
-use warnings;
-
 use File::Temp;
 use File::Spec::Functions qw[ catfile ];
 

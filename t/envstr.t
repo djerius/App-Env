@@ -4,9 +4,6 @@ use Test2::V0;
 use Test2::API qw[ context ];
 use Test::Lib;
 
-use strict;
-use warnings;
-
 use Env::Path;
 
 use File::Temp;

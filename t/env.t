@@ -7,9 +7,6 @@ use Test::Lib;
 use Env::Path;
 use File::Temp;
 
-use strict;
-use warnings;
-
 use App::Env;
 
 my $app1 = App::Env->new( 'App1' );
