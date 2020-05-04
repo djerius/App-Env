@@ -565,6 +565,15 @@ for its format.
     method to throw an exception if the command returned a non-zero exit
     value.  It also avoid invoking a shell to run the command if possible.
 
+- which
+
+        $path = $env->which( $command );
+        @paths = $env->which( $command );
+
+    Return the path (or paths in list mode) of the passed command using
+    [File::Which](https://metacpan.org/pod/File::Which).  It returns `undef` or an empty list if the command
+    is not found.
+
 ## Changing Default Option Values
 
 Default values for some options may be changed via any of the
@@ -666,20 +675,21 @@ option; this will either create a new environment if none exists or
 clone an existing one.  In either case the result won't be cached and
 any changes will be localized.
 
-# BUGS
+# SUPPORT
 
-Please report any bugs or feature requests on the bugtracker website
-[https://rt.cpan.org/Public/Dist/Display.html?Name=App-Env](https://rt.cpan.org/Public/Dist/Display.html?Name=App-Env) or by email to
-[bug-App-Env@rt.cpan.org](mailto:bug-App-Env@rt.cpan.org).
+## Bugs
 
-When submitting a bug or request, please include a test-file or a
-patch to an existing test-file that illustrates the bug or desired
-feature.
+Please report any bugs or feature requests to bug-app-env@rt.cpan.org  or through the web interface at: https://rt.cpan.org/Public/Dist/Display.html?Name=App-Env
 
-# SOURCE
+## Source
 
-The development version is on github at [https://github.com/djerius/app-env](https://github.com/djerius/app-env)
-and may be cloned from [git://github.com/djerius/app-env.git](git://github.com/djerius/app-env.git)
+Source is available at
+
+    https://gitlab.com/djerius/App-Env
+
+and may be cloned from
+
+    https://gitlab.com/djerius/App-Env.git
 
 # SEE ALSO
 
