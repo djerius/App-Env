@@ -876,7 +876,18 @@ sub exec
 }
 
 
+#-------------------------------------------------------
 
+sub which
+{
+    require File::Which;
+    my $self = shift;
+
+    {
+        local %ENV = %{$self};
+        return File::Which::which( @_ );
+    }
+}
 
 ###############################################
 ###############################################
@@ -1662,6 +1673,15 @@ If the B<SysFatal> flag is set for this environment,
 B<IPC::System::Simple::capture> is called, which will cause this
 method to throw an exception if the command returned a non-zero exit
 value.  It also avoid invoking a shell to run the command if possible.
+
+=item which
+
+  $path = $env->which( $command );
+  @paths = $env->which( $command );
+
+Return the path (or paths in list mode) of the passed command using
+L<File::Which>.  It returns C<undef> or an empty list if the command
+is not found.
 
 =back
 
